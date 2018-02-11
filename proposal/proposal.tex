@@ -1,0 +1,392 @@
+\documentclass{article}
+
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{fancyhdr}
+\usepackage{url}
+\usepackage{amsmath,bm}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage[round]{natbib}
+\usepackage{enumitem,xcolor}
+\usepackage[multiple]{footmisc}
+
+\usepackage[
+ pdftitle={Capstone Proposal - Udacity Machine Learning Nanodegree},
+ pdfsubject={Machine Learning, Reinforcement Learning, Deep Learning, Artificial Intelligence, Games},
+ pdfauthor={Peng Xu},
+ pdfpagemode=UseOutlines,
+ pdfborder= {0 0 1.0},
+ bookmarks,
+ bookmarksopen,
+ colorlinks=true,
+ citecolor=blue,
+ linkcolor=blue, %
+ linkbordercolor=blue, %
+ urlcolor=blue, %
+]{hyperref}
+
+\usepackage[labelfont=bf]{caption}
+
+
+\usepackage[utf8]{inputenc}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{8} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{8}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+\usepackage{listings}
+
+\definecolor{codebg}{RGB}{238,238,238}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+framesep=10pt,
+framexleftmargin=10pt,
+backgroundcolor=\color{codebg},
+rulecolor=\color{codebg},
+aboveskip=15pt,
+belowskip=15pt,
+showstringspaces=false            % 
+}}
+
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Machine Learning Nanodegree \\ Capstone Proposal}
+\author{Peng Xu}
+\date{February 13, 2016}
+\begin{document}
+\maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Domain Background}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Reinforcement learning is the area of machine learning concerned with the idea of learning by
+interacting with an environment~\citep{Sutton1998RL}. It has a long and notable history in games.
+The checkers program written by \citet{Samuel1959Checkers} was the first remarkable application of
+temporal difference learning, and also the first significant learning program of any kind. It had
+the principles of temporal difference learning decades before it was described and analyzed.
+However, it was another game where reinforcement learning reached its first big success, when
+\textsc{TD-Gammon}~\citep{Tesauro1995TD} reached world-class gameplay in Backgammon by training a
+neural network-based evaluation function through self-play.
+
+Deep Learning~\citep{LeCun2015Nature} is another branch of machine learning that allows
+computational models that are composed of multiple processing layers to learn representations of
+data with multiple levels of abstraction.  Deep learning techniques have dramatically improved the
+state-of-the-art in areas such as speech recognition~\citep{Hinton2012Speech}, image
+recognition~\citep{Krizhevsky2012ImageNet} and natural language processing~\citep{Colbert2012}.
+
+Reecently, there have been several breakthroughs when combining reinforcement learning and deep
+learning. \cite{Mnih2015AtariNature} used a convolutional neural network trained with a variant of
+Q-learning and learned to play Atari 2600 games at a human-level. This year, one of the biggest
+challenges for artificial intelligence was solved, when Google's DeepMind~\citep{Silver2016GoNature}
+created AlphaGo to beat the world's greatest Go player. AlphaGo used deep neural networks trained by
+a combination of supervised learning from human expert games, and reinforcement learning from games
+of self-play.
+
+Developing strong game-playing programs for classic two-player games (e.g. Chess, Checkers, Go) is
+important in two respects: first, for humans that play the games looking for an intellectual
+challenge, and second, for AI researchers that use the games as testbeds for artificial
+intelligence. In both cases, the task for game programmers and AI researchers of writing strong game
+AI is a hard and tedious task that requires hours of trial and error adjustments and human
+expertise. Therefore, when a strong game-playing algorithm is created to play a specific game, it is
+rarely useful for creating an algorithm to play another game, since the domain knowledge is
+non-transferable. For this reason, there is enormous value in using machine learning to learn to
+play these games without using any domain knowledge.
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Motivation}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\URLticapp}{https://itunes.apple.com/us/app/tic-tac-toe-clash/id1041863034?mt=8}
+\newcommand{\URLticplay}{https://play.google.com/store/apps/details?id=com.zerosumstudios.tictactoeclash}
+
+My personal motivation for investigating this area more in depth is that we have plans for
+developing mobile games that require strong AI. So far we have developed one mobile game, {Tic Tac
+Toe Clash}\footnote{\url{\URLticapp}}\textsuperscript{,}\footnote{\url{\URLticplay}}, but Tic Tac
+Toe is such a simple game that does not even require an evaluation function, since is possible to
+search the full game tree using Alpha-Beta pruning to find the best possible move. But we are in the
+process of developing more games, and some of them will require stronger AI, and hand-coding
+different heuristics for each particular game is a hard and tedious task. So, my personal goal is to
+use this project as a first step to create a generic reinforcement learning framework that uses deep
+learning to learn evaluation functions for abstract strategy games without using any domain
+knowledge.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Problem Statement}
+\label{sec:problem-statement}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\URLcf}{https://en.wikipedia.org/wiki/Connect_Four}
+
+In this project, we will use reinforcement learning with deep learning to make an agent learn to
+play the game of {Connect 4}\footnote{\url{\URLcf}} by playing games against itself. In other words,
+using the formalism used by \cite{Mitchell1997Book} to define a machine learning problem:
+
+\begin{itemize}
+
+    \item \textbf{Task:} Playing Connect 4.
+
+    \item \textbf{Performance:} Percent of games won against other agents, and accuracy of the
+        predictions on a Connect 4 dataset.
+
+    \item \textbf{Experience:} Games played against itself.
+
+    \item \textbf{Target function:} $Q^\pi : \mathcal{S} \times \mathcal{A} \to \mathbb{R}$, where
+        $\mathcal{S}$ is the set of \emph{states} (board positions) and $\mathcal{A}$ is the set of
+        \emph{actions} (moves), and $\mathbb{R}$ represents the value of being in a state $s \in
+        \mathcal{S}$, applying a action $a \in \mathcal{A}$, and following policy $\pi$ thereafter.
+
+    \item \textbf{Target function representation:} Deep neural network.
+
+\end{itemize}
+
+Therefore, I seek to build a Q-learning agent trained via a deep convolutional neural network to
+approximate the optimal action-value function:
+
+\begin{equation}
+Q^*(s,a) = \max\limits_\pi Q^\pi(s,a), \forall s \in \mathcal{S}, a \in \mathcal{A}
+\end{equation}
+
+\noindent which is the maximum sum of rewards achievable by a behaviour policy $\pi$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Datasets and Inputs}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This project will not use a dataset as part of the training, since an agent will use reinforcement
+learning to learn to play Connect 4 by playing games against itself. The state-space complexity of
+Connect 4 has been estimated at $10^{14}$. Also, it has an average branching factor of 4 and a
+game-tree complexity of approximately $4^{36} \approx 10^{21}$~\citep{Allis1994PhD}. To generate the
+episodes a Connect 4 environment written in Python will be used.  This environment is explained more
+in detail in \hyperref[sec:project-design]{Section \ref*{sec:project-design}}.
+
+However, as part of the testing phase, we will use the \emph{Connect 4 Data
+Set}\footnote{\url{https://archive.ics.uci.edu/ml/datasets/Connect-4}} that is available from the
+UCI Machine Learning Repository~\citep{Hettich1998UCI}. This dataset has a total of 67,557
+instances, representing all legal 8-ply positions in \mbox{Connect 4} in which neither player has
+won yet, and which the next move is not forced. Each instance is described by 42 features, one for
+each space in the $6 \times 7$ board, and can belong to one of the classes $\{\textsc{x},
+\textsc{o}, \textsc{b}\}$, where \textsc{x} is the first player, \textsc{o} is the second player,
+and \textsc{b} is empty. The outcome class is the game theoretical value for the first player, and
+can belong to one of the classes $\{\textsc{Win}, \textsc{Loss}, \textsc{Draw}\}$. There are 44,473
+wins, 16,635 losses and 6,449 draws. In \hyperref[sec:benchmark]{Section \ref*{sec:benchmark}} we
+discuss how this dataset will be used as a benchmark model.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Solution Statement}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+To tackle the problem described in \hyperref[sec:problem-statement]{Section
+\ref*{sec:problem-statement}}, we will use Reinforcement learning with Deep Learning to
+automatically learn evaluation functions by playing games against itself. Unlike other approaches
+that need a very large dataset, this approach will try to learn to play games without any domain
+knowledge (no dataset will be used). This is a promising approach for creating game-playing
+algorithms for playing other two-player games of perfect information.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Benchmark Model}
+\label{sec:benchmark}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+
+    \item \textbf{Random agent}. This benchmark consists in playing against an agent that takes
+        uniformly random moves. This is the most basic benchmark, but first we have to be sure that
+        our learned evaluation function can play better than a random agent before moving into a
+        harder benchmark. Also, this will help us to detect bugs in the code and algorithms: if a
+        learned value function does not play significantly better than a random agent, is not
+        learning. The idea is to test against this benchmark using Alpha-beta pruning at 1, 2 and
+        4-ply search.
+
+    \item \textbf{Connect 4 Data Set}. This dataset will be used as the main benchmark. The learned
+        value function will be used to predict the game-theoretic outcomes (win, loss or draw) for
+        the first player in the 67,557 instances of the dataset.
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Evaluation Metrics}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+
+    \item \textbf{Winning percentage.} This metric consists in playing a high number of games (e.g.
+        100,000) against another agent (e.g. a random agent), and calculating the average of games
+        won by the agent that uses the learned value function.
+        
+    \item \textbf{Prediction accuracy.} The learned value function will be used to predict the
+        game-theoretic outcomes (win, loss or draw) of the board positions in the Connect 4 Data
+        Set.
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Project Design}
+\label{sec:project-design}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Programming Language and Libraries}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+
+    \item \textbf{Python 2.}
+
+    \item \textbf{scikit-learn}. Open source machine learning library for Python.
+
+    \item \textbf{Keras.} Open source neural network library written in Python. It is capable of
+        running on top of either Tensorflow or Theano.
+
+    \item \textbf{TensorFlow.} Open source software libraries for deep learning.
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Environments and Agents}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This project will use two environments:
+
+\begin{itemize}
+
+    \item \textbf{Tic Tac Toe.} Will be used to verify that the reinforcement learning algorithms
+        are working as expected, since it is a simple game where an agent can easily search the full
+        game tree to find the optimal actions.
+
+    \item \textbf{Connect 4.} The main environment for which we will learn value functions using
+        reinforcement learning with deep neural networks.
+
+\end{itemize}
+
+\noindent Both environments will follow a common \textrm{Game} interface:
+
+\begin{python}
+class Game(object):
+    def copy(self):
+        '''Returns a copy of the game'''
+    def getBoard(self):
+        '''Returns the board of the game'''
+    def getCurrentPlayer(self):
+        '''Returns the player whose turn it is'''
+    def getLegalMoves(self):
+        '''Returns a list of legal moves for the player in turn'''
+    def getOutcomes(self):
+        '''Returns the outcome for each player at the end of the game'''
+    def isGameOver(self):
+        '''Returns true if the game is over, false otherwise'''
+    def makeMove(self, move):
+        '''Makes a move for the player whose turn it is'''
+\end{python}
+
+\noindent Also, we will use a simple \textrm{Agent} interface:
+
+\begin{python}
+class Agent(object):
+    def chooseMove(self, game):
+        '''Returns one of the legal moves from game.getLegalMoves()'''
+    def learn(self, game):
+        '''
+        Called at the end of each episode. It should use game.getBoard()
+        and game.getOutcomes() to update the deep neural network
+        '''
+
+\end{python}
+
+\noindent
+These interfaces will allow us to run multiple trials relatively easy:
+
+\begin{python}
+n_trials = 100
+agent = Agent()
+for trial in range(n_trials):
+    game = Connect4()
+    while not game.isOver():
+        chosenMove = agent.chooseMove(game)
+        game.makeMove(chosenMove)
+    agent.update(game)
+\end{python}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Machine Learning Design}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+
+    \item \textbf{Type of training experience:} Games against self
+
+    \item \textbf{Target function:} $Q^\pi : \mathcal{S} \times \mathcal{A} \to \mathbb{R}$, where
+        $\mathcal{S}$ is the set of \emph{states} (board positions) and $\mathcal{A}$ is the set of
+        \emph{actions} (moves), and $\mathbb{R}$ represents the value of being in a state $s \in
+        \mathcal{S}$, applying a action $a \in \mathcal{A}$, and following policy $\pi$ thereafter.
+
+    \item \textbf{Representation of learned function:} Deep neural network
+
+    \item \textbf{Learning algorithm:} Q-learning, a model-free online off-policy algorithm, whose
+        main strength is that it is able to compare the expected utility of the available actions
+        without requiring a model of the environment:
+
+        \begin{equation}
+        Q(s_t, a_t) \gets Q(s_t, a_t) + \alpha [r_{t+1} + \gamma \max_a Q(s_{t+1}, a) - Q(s_t, a_t)]
+        \end{equation}
+
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Additional Algorithms}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+
+    \item \textbf{Alpha-beta Pruning.} The most common game tree search algorithm for two-player
+        games of perfect information. It will be used as part of the evaluation of the learned value
+        functions.
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BIBLIOGRAPHY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+
+\end{document}
