@@ -1,4 +1,4 @@
-# mlnd-capstono
+# mlnd-capstone
 MLND Part 7: Capstone Proposal & Capstone Project.
 
 ## Project: Capstone Proposal
