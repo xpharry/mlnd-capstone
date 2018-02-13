@@ -1,13 +1,11 @@
-# MLND-Capstone-Project
-MLND Part 7: Capstone Project.
-
-The project can be a project containing two sub projects.
+# mlnd-capstono
+MLND Part 7: Capstone Proposal & Capstone Project.
 
 ## Project: Capstone Proposal
 
 - [Capstone Proposal](./proposal/proposal.pdf)
 
-A project proposal is listed here and a game bot is expected to be built with Deep Reinforcement Learning method as indicated in the proposal.
+A project proposal is listed here and a game bot is expected to be built with Deep Reinforcement Learning method.
 
 ## Project: Capstone Project
 
