@@ -83,7 +83,7 @@ showstringspaces=false            %
 % Python for inline
 \newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
 
-
+\graphicspath{ {../images/} }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Machine Learning Nanodegree \\ Capstone Proposal}
@@ -97,56 +97,13 @@ showstringspaces=false            %
 \section{Domain Background}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Reinforcement learning is the area of machine learning concerned with the idea of learning by
-interacting with an environment~\citep{Sutton1998RL}. It has a long and notable history in games.
-The checkers program written by \citet{Samuel1959Checkers} was the first remarkable application of
-temporal difference learning, and also the first significant learning program of any kind. It had
-the principles of temporal difference learning decades before it was described and analyzed.
-However, it was another game where reinforcement learning reached its first big success, when
-\textsc{TD-Gammon}~\citep{Tesauro1995TD} reached world-class gameplay in Backgammon by training a
-neural network-based evaluation function through self-play.
+Reinforcement learning addresses the problem of how agents should learn to take actions to maximize cumulative reward through interactions with the environment. The traditional approach for reinforcement learning algorithms requires carefully chosen feature representations, which are usually hand-engineered. Recently, significant progress has been made by combining advances in deep learning for learning feature representations.
 
-Deep Learning~\citep{LeCun2015Nature} is another branch of machine learning that allows
-computational models that are composed of multiple processing layers to learn representations of
-data with multiple levels of abstraction.  Deep learning techniques have dramatically improved the
-state-of-the-art in areas such as speech recognition~\citep{Hinton2012Speech}, image
-recognition~\citep{Krizhevsky2012ImageNet} and natural language processing~\citep{Colbert2012}.
+Deep Reinforcement Learning has proven its ability in a varity of classic problems among video games and robotics. In some extent, a video game is equivelent to a simulation of real case, such as racing cars, drones etc. By solving a similar problem in a video game or a simulation setting, the final successful model could be applied on the countpart problem in real case using transfer learning, which saves a lot of time and money or even reverse mission impossible. Among those challenging problems how to train a vehicle to be a self-learner interests me most.
 
-Reecently, there have been several breakthroughs when combining reinforcement learning and deep
-learning. \cite{Mnih2015AtariNature} used a convolutional neural network trained with a variant of
-Q-learning and learned to play Atari 2600 games at a human-level. This year, one of the biggest
-challenges for artificial intelligence was solved, when Google's DeepMind~\citep{Silver2016GoNature}
-created AlphaGo to beat the world's greatest Go player. AlphaGo used deep neural networks trained by
-a combination of supervised learning from human expert games, and reinforcement learning from games
-of self-play.
+\includegraphics[width=\textwidth]{interaction-flow}
 
-Developing strong game-playing programs for classic two-player games (e.g. Chess, Checkers, Go) is
-important in two respects: first, for humans that play the games looking for an intellectual
-challenge, and second, for AI researchers that use the games as testbeds for artificial
-intelligence. In both cases, the task for game programmers and AI researchers of writing strong game
-AI is a hard and tedious task that requires hours of trial and error adjustments and human
-expertise. Therefore, when a strong game-playing algorithm is created to play a specific game, it is
-rarely useful for creating an algorithm to play another game, since the domain knowledge is
-non-transferable. For this reason, there is enormous value in using machine learning to learn to
-play these games without using any domain knowledge.
-
-%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Motivation}
-%%%%%%%%%%%%%%%%%%%%%%%
-
-\newcommand{\URLticapp}{https://itunes.apple.com/us/app/tic-tac-toe-clash/id1041863034?mt=8}
-\newcommand{\URLticplay}{https://play.google.com/store/apps/details?id=com.zerosumstudios.tictactoeclash}
-
-My personal motivation for investigating this area more in depth is that we have plans for
-developing mobile games that require strong AI. So far we have developed one mobile game, {Tic Tac
-Toe Clash}\footnote{\url{\URLticapp}}\textsuperscript{,}\footnote{\url{\URLticplay}}, but Tic Tac
-Toe is such a simple game that does not even require an evaluation function, since is possible to
-search the full game tree using Alpha-Beta pruning to find the best possible move. But we are in the
-process of developing more games, and some of them will require stronger AI, and hand-coding
-different heuristics for each particular game is a hard and tedious task. So, my personal goal is to
-use this project as a first step to create a generic reinforcement learning framework that uses deep
-learning to learn evaluation functions for abstract strategy games without using any domain
-knowledge.
+In other words, a general pipeline is to be established along with this practice of building a game bot. In the future, the pipeline could be applied on similar problems both in simulation setting and in field cases which is the motivation for me.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Problem Statement}
@@ -155,16 +112,15 @@ knowledge.
 
 \newcommand{\URLcf}{https://en.wikipedia.org/wiki/Connect_Four}
 
-In this project, we will use reinforcement learning with deep learning to make an agent learn to
-play the game of {Connect 4}\footnote{\url{\URLcf}} by playing games against itself. In other words,
-using the formalism used by \cite{Mitchell1997Book} to define a machine learning problem:
+In openAI-Universe, several racing car games are provided, for example, the Coaster Racer flash game, in which a vehicle is simply controlled by 3 inputs, left, right, forward. It is easily to be redesigned in a Reinoforcement Learning setting. The vehicle interacts with its environment in the way as shown in below. It is expected that the racing car can learn a smart driving behavior after a series of training steps leading to a maximal reward or namely score here.
+
+This is starting from the "How to Install OpenAI's Universe and Make a Game Bot" live session by Siraj Raval on Youtube. The bot is for the Coaster Racer flash game and determines the answer to 2 questions -- should I turn, and which way should I turn? It answers the first by checking if it's been receiving a reward for a certain interval (no crashes), and if it has it will turn. It answers the second by randomly picking a turn between left and right. This bot is able to complete the race. So it's a bot that uses reinforcement learning to determine when to turn and each turn is a random direction.
 
 \begin{itemize}
 
-    \item \textbf{Task:} Playing Connect 4.
+    \item \textbf{Task:} Playing Coaster Racer.
 
-    \item \textbf{Performance:} Percent of games won against other agents, and accuracy of the
-        predictions on a Connect 4 dataset.
+    \item \textbf{Performance:} Percent of games won against other agents.
 
     \item \textbf{Experience:} Games played against itself.
 
@@ -190,24 +146,7 @@ Q^*(s,a) = \max\limits_\pi Q^\pi(s,a), \forall s \in \mathcal{S}, a \in \mathcal
 \section{Datasets and Inputs}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-This project will not use a dataset as part of the training, since an agent will use reinforcement
-learning to learn to play Connect 4 by playing games against itself. The state-space complexity of
-Connect 4 has been estimated at $10^{14}$. Also, it has an average branching factor of 4 and a
-game-tree complexity of approximately $4^{36} \approx 10^{21}$~\citep{Allis1994PhD}. To generate the
-episodes a Connect 4 environment written in Python will be used.  This environment is explained more
-in detail in \hyperref[sec:project-design]{Section \ref*{sec:project-design}}.
-
-However, as part of the testing phase, we will use the \emph{Connect 4 Data
-Set}\footnote{\url{https://archive.ics.uci.edu/ml/datasets/Connect-4}} that is available from the
-UCI Machine Learning Repository~\citep{Hettich1998UCI}. This dataset has a total of 67,557
-instances, representing all legal 8-ply positions in \mbox{Connect 4} in which neither player has
-won yet, and which the next move is not forced. Each instance is described by 42 features, one for
-each space in the $6 \times 7$ board, and can belong to one of the classes $\{\textsc{x},
-\textsc{o}, \textsc{b}\}$, where \textsc{x} is the first player, \textsc{o} is the second player,
-and \textsc{b} is empty. The outcome class is the game theoretical value for the first player, and
-can belong to one of the classes $\{\textsc{Win}, \textsc{Loss}, \textsc{Draw}\}$. There are 44,473
-wins, 16,635 losses and 6,449 draws. In \hyperref[sec:benchmark]{Section \ref*{sec:benchmark}} we
-discuss how this dataset will be used as a benchmark model.
+By using a Deep Q-Learning model, there is no need to use an external dataset since the data are captured along with training. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Solution Statement}
@@ -215,7 +154,7 @@ discuss how this dataset will be used as a benchmark model.
 
 To tackle the problem described in \hyperref[sec:problem-statement]{Section
 \ref*{sec:problem-statement}}, we will use Reinforcement learning with Deep Learning to
-automatically learn evaluation functions by playing games against itself. Unlike other approaches
+automatically learn evaluation functions by playing games by itself. Unlike other approaches
 that need a very large dataset, this approach will try to learn to play games without any domain
 knowledge (no dataset will be used). This is a promising approach for creating game-playing
 algorithms for playing other two-player games of perfect information.
@@ -235,10 +174,6 @@ algorithms for playing other two-player games of perfect information.
         learning. The idea is to test against this benchmark using Alpha-beta pruning at 1, 2 and
         4-ply search.
 
-    \item \textbf{Connect 4 Data Set}. This dataset will be used as the main benchmark. The learned
-        value function will be used to predict the game-theoretic outcomes (win, loss or draw) for
-        the first player in the 67,557 instances of the dataset.
-
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -250,10 +185,6 @@ algorithms for playing other two-player games of perfect information.
     \item \textbf{Winning percentage.} This metric consists in playing a high number of games (e.g.
         100,000) against another agent (e.g. a random agent), and calculating the average of games
         won by the agent that uses the learned value function.
-        
-    \item \textbf{Prediction accuracy.} The learned value function will be used to predict the
-        game-theoretic outcomes (win, loss or draw) of the board positions in the Connect 4 Data
-        Set.
 
 \end{itemize}
 
@@ -270,7 +201,9 @@ algorithms for playing other two-player games of perfect information.
 
     \item \textbf{Python 2.}
 
-    \item \textbf{scikit-learn}. Open source machine learning library for Python.
+    \item \textbf{openai-gym}. Open source machine learning library for Reinforcement Learning.
+    
+    \item \textbf{openai-universe}. Provide the game environment.
 
     \item \textbf{Keras.} Open source neural network library written in Python. It is capable of
         running on top of either Tensorflow or Theano.
@@ -283,66 +216,13 @@ algorithms for playing other two-player games of perfect information.
 \subsection{Environments and Agents}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-This project will use two environments:
-
 \begin{itemize}
 
-    \item \textbf{Tic Tac Toe.} Will be used to verify that the reinforcement learning algorithms
+    \item \textbf{Coaster Racer flash game.} Will be used to verify that the reinforcement learning algorithms
         are working as expected, since it is a simple game where an agent can easily search the full
         game tree to find the optimal actions.
 
-    \item \textbf{Connect 4.} The main environment for which we will learn value functions using
-        reinforcement learning with deep neural networks.
-
 \end{itemize}
-
-\noindent Both environments will follow a common \textrm{Game} interface:
-
-\begin{python}
-class Game(object):
-    def copy(self):
-        '''Returns a copy of the game'''
-    def getBoard(self):
-        '''Returns the board of the game'''
-    def getCurrentPlayer(self):
-        '''Returns the player whose turn it is'''
-    def getLegalMoves(self):
-        '''Returns a list of legal moves for the player in turn'''
-    def getOutcomes(self):
-        '''Returns the outcome for each player at the end of the game'''
-    def isGameOver(self):
-        '''Returns true if the game is over, false otherwise'''
-    def makeMove(self, move):
-        '''Makes a move for the player whose turn it is'''
-\end{python}
-
-\noindent Also, we will use a simple \textrm{Agent} interface:
-
-\begin{python}
-class Agent(object):
-    def chooseMove(self, game):
-        '''Returns one of the legal moves from game.getLegalMoves()'''
-    def learn(self, game):
-        '''
-        Called at the end of each episode. It should use game.getBoard()
-        and game.getOutcomes() to update the deep neural network
-        '''
-
-\end{python}
-
-\noindent
-These interfaces will allow us to run multiple trials relatively easy:
-
-\begin{python}
-n_trials = 100
-agent = Agent()
-for trial in range(n_trials):
-    game = Connect4()
-    while not game.isOver():
-        chosenMove = agent.chooseMove(game)
-        game.makeMove(chosenMove)
-    agent.update(game)
-\end{python}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Machine Learning Design}
@@ -367,18 +247,6 @@ for trial in range(n_trials):
         Q(s_t, a_t) \gets Q(s_t, a_t) + \alpha [r_{t+1} + \gamma \max_a Q(s_{t+1}, a) - Q(s_t, a_t)]
         \end{equation}
 
-
-\end{itemize}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Additional Algorithms}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{itemize}
-
-    \item \textbf{Alpha-beta Pruning.} The most common game tree search algorithm for two-player
-        games of perfect information. It will be used as part of the evaluation of the learned value
-        functions.
 
 \end{itemize}
 
