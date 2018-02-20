@@ -19,6 +19,44 @@ BATCH = 100
 ENV_ID = 'flashgames.CoasterRacer-v0'
 
 
+# crop video frame so NN is smaller and set range between 1 and 0; and
+# stack-a-bitch!
+def processFrame(observation_n):
+    if observation_n is not None:
+        obs = observation_n[0]['vision']
+        # crop
+        obs = cropFrame(obs)
+        # downscale resolution (not sure about sizing here, was (120,160) when
+        # I started but it felt like that was just truncating the colourspace)
+        obs = cv2.resize(obs, (120, 160))
+        # greyscale
+        obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
+        # Convert to float
+        obs = obs.astype(np.float32)
+        # scale from 1 to 255
+        obs *= (1.0 / 255.0)
+        # re-shape a bitch
+        obs = np.reshape(obs, [120, 160])
+    return obs
+
+# crop frame to only flash portion:
+
+
+def cropFrame(obs):
+    # adds top = 84 and left = 18 to height and width:
+    return obs[84:564, 18:658, :]
+
+
+# Add appropiate actions to system
+def appendActions(observation_n, argmax_t, previous_argmax):
+    actions_n = ([[('KeyEvent', KEYS[np.argmax(previous_argmax)], False),
+                   ('KeyEvent', 'ArrowUp', True),
+                   ('KeyEvent', 'n', True),
+                   ('KeyEvent', KEYS[np.argmax(argmax_t)], True)]
+                  for obs in observation_n])
+    return actions_n, argmax_t
+
+
 def createGraph():
 
     W_conv1 = tf.Variable(tf.zeros([8, 8, 4, 32]), name='W_conv1')
@@ -122,8 +160,7 @@ def trainGraph(inp, out, sess):
         if epsilon > FINAL_EPSILON:
             epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / EXPLORE
 
-        action_t, previous_argmax = appendActions(
-            observation_n, argmax_t, previous_argmax)
+        action_t, previous_argmax = appendActions(observation_n, argmax_t, previous_argmax)
         observation_n, reward_t, done_t, info = env.step(action_t)
         # env.render()
 
@@ -173,44 +210,6 @@ def trainGraph(inp, out, sess):
             saver.save(sess, './' + 'CoasterRacer' + '-dqn', global_step=t)
 
         print("TIMESTEP", t,  "/ EPSILON", epsilon, "/ ACTION", KEYS[maxIndex], "/ REWARD", reward_t, "/ Q_MAX %e" % np.max(out_t))
-
-
-# crop video frame so NN is smaller and set range between 1 and 0; and
-# stack-a-bitch!
-def processFrame(observation_n):
-    if observation_n is not None:
-        obs = observation_n[0]['vision']
-        # crop
-        obs = cropFrame(obs)
-        # downscale resolution (not sure about sizing here, was (120,160) when
-        # I started but it felt like that was just truncating the colourspace)
-        obs = cv2.resize(obs, (120, 160))
-        # greyscale
-        obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
-        # Convert to float
-        obs = obs.astype(np.float32)
-        # scale from 1 to 255
-        obs *= (1.0 / 255.0)
-        # re-shape a bitch
-        obs = np.reshape(obs, [120, 160])
-    return obs
-
-# crop frame to only flash portion:
-
-
-def cropFrame(obs):
-    # adds top = 84 and left = 18 to height and width:
-    return obs[84:564, 18:658, :]
-
-
-# Add appropiate actions to system
-def appendActions(observation_n, argmax_t, previous_argmax):
-    actions_n = ([[('KeyEvent', KEYS[np.argmax(previous_argmax)], False),
-                   ('KeyEvent', 'ArrowUp', True),
-                   ('KeyEvent', 'n', True),
-                   ('KeyEvent', KEYS[np.argmax(argmax_t)], True)]
-                  for obs in observation_n])
-    return actions_n, argmax_t
 
 
 def main():
