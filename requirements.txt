@@ -1,0 +1,5 @@
+tensorflow-gpu==1.4.1
+opencv-python==3.4.0.12
+numpy==1.14.1
+gym==0.9.7
+universe==0.21.3
