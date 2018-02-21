@@ -35,6 +35,7 @@ def main():
 
     # init environment
     env = gym.make('flashgames.CoasterRacer-v0')
+    env.configure(remotes='vnc://localhost:5900+15901')
     observation_n = env.reset()
 
     # init variables

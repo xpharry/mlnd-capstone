@@ -178,12 +178,26 @@ to check if you can run docker without sudo.
 
 ### Usage:
 
-#### 1) Training
+#### 1) Play with Coast_Racer trained by RL
 
-Either run train.py to train the model or demo.py to see it in action. demo.py loads the tensors from the TF checkpoint files and runs the model. (Check the file name that this tries to resore from if you haven't left this to train completely using my code or have made any alterations.)
-Note that train.py doesn't render anything and as such, needs to be VNCd into to see whats happening.
+- Run
 
-#### 2) Testing
+```
+docker run -p 5900:5900 -p 15900:15900 --cap-add SYS_ADMIN --ipc host --privileged quay.io/openai/universe.flashgames:0.20.8\n
+```
+
+- Run
+
+```
+python `coast_racer_rl.py`.py
+```
+
+#### 2) Play with DQN
+
+Either run `coast_racer_dqn_train.py` to train the model or `coast_racer_dqn_demo.py` to see it in action. demo.py loads the tensors from the TF checkpoint files and runs the model. (Check the file name that this tries to restore from if you haven't left this to train completely using my code or have made any alterations.)
+
+Note that `coast_racer_dqn_train.py` doesn't render anything and as such, needs to be VNCd into to see whats happening.
+
 
 ### Video Demo
 
