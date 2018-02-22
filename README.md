@@ -29,14 +29,14 @@ In this project, I start from simply a Q-Learning model and add in some deep lea
 
 #### [Install Universe](https://github.com/openai/universe#installation)
 
-On Ubuntu 16.04:
+##### On Ubuntu 16.04:
 
 ```shell
 pip install numpy
 sudo apt-get install golang libjpeg-turbo8-dev make
 ```
 
-On Ubuntu 14.04:
+##### On Ubuntu 14.04:
 
 ```shell
 sudo add-apt-repository ppa:ubuntu-lxc/lxd-stable  # for newer golang
@@ -44,9 +44,10 @@ sudo apt-get update
 sudo apt-get install golang libjpeg-turbo8-dev make
 ```
 
-NOTE:
+**NOTE:**
 
 There might be an error showing:
+
 ```bash
 Cannot add PPA: 'ppa:ubuntu-lxc/lxd-stable'.
 Please check that the PPA name or format is correct.
@@ -59,18 +60,24 @@ $ sudo add-apt-repository ppa:gophers/archive
 $ sudo apt-get update
 $ sudo apt-get install golang-1.9-go
 ```
-Note that golang-1.9-go puts binaries in /usr/lib/go-1.9/bin.
+
+**Note** that golang-1.9-go puts binaries in /usr/lib/go-1.9/bin.
+
 If you want them on your PATH, you need to make that change yourself.
+
 For example, 
+
 ```
 sudo mv /usr/lib/go-1.9 /usr/local/go
 ```
+
 Then, in your `~/.bashrc` file, add this line:
+
 ```
 export PATH=$PATH:/usr/local/go/bin
 ```
 
-On OSX:
+##### On OSX:
 
 You might need to install Command Line Tools by running:
 
@@ -98,7 +105,9 @@ containers, so you will need to [install Docker](https://docs.docker.com/engine/
 Alternate configuration - running the agent in docker
 
 The above instructions result in an agent that runs as a regular python process in your OS, and launches docker containers as needed for the remotes.
+
 Alternatively, you can build a docker image for the agent and run it as a container as well.
+
 You can do this in any operating system that has a recent version of docker installed, and the git client.
 
 To get started, clone the ``universe`` repo:
