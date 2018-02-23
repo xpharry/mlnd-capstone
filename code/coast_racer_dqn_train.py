@@ -218,7 +218,7 @@ def trainGraph(inp, out, sess):
         t = t + 1
 
         # print our where wer are after saving where we are
-        if t % 10000 == 0:
+        if t % 1000 == 0:
             saver.save(sess, '../saved_models/' + 'CoasterRacer-dqn.ckpt', global_step=t)
 
         print("TIMESTEP", t,  "/ EPSILON", epsilon, "/ ACTION", KEYS[maxIndex], "/ REWARD", reward_t, "/ Q_MAX %e" % np.max(out_t))
