@@ -48,7 +48,7 @@ def appendActions(observation_n, argmax_t, previous_argmax):
     return actions_n, argmax_t
 
 
-def restore(sess, file):
+def restoreGraph():
 
     # Variables to be restored to
     W_conv1 = tf.Variable(tf.zeros([8, 8, 4, 32]), name='W_conv1')
@@ -66,11 +66,6 @@ def restore(sess, file):
     W_fc5 = tf.Variable(tf.zeros([784, ACTIONS]), name='W_fc5')
     b_fc5 = tf.Variable(tf.zeros([ACTIONS]), name='b_fc5')
 
-    # restore above weights and baises to the session:
-    saver = tf.train.import_meta_graph(file + '.meta')
-    saver.restore(sess, tf.train.latest_checkpoint('./'))
-    sess.run(tf.global_variables_initializer())
-
     # Restore NN structure and input and output place holders:
     inp = tf.placeholder("float", [None, 120, 160, 4])
 
@@ -87,6 +82,18 @@ def restore(sess, file):
     out = tf.matmul(fc4, W_fc5) + b_fc5
 
     return sess, inp, out
+
+
+# loading saved models
+def restoreSession(sess):
+    saver = tf.train.Saver()
+    checkpoint = tf.train.get_checkpoint_state("saved_models")
+    if checkpoint and checkpoint.model_checkpoint_path:
+        saver.restore(sess, checkpoint.model_checkpoint_path)
+        print("Successfully loaded:", checkpoint.model_checkpoint_path)
+    else:
+        print("Could not find old network weights")
+    return sess
 
 
 # deep q network. feed in pixel data to graph session
@@ -144,7 +151,10 @@ def main():
     sess = tf.Session()
 
     # restore the weights, baises and structure to the graph:
-    [sess, inp, out] = restore(sess, 'CoasterRacer-dqn-100000')
+    inp, out = restoreGraph()
+
+    # restore sess
+    sess = restoreSession(sess)
 
     testGraph(inp, out, sess)
 

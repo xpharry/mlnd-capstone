@@ -75,11 +75,11 @@ def createGraph():
     b_fc5 = tf.Variable(tf.zeros([ACTIONS]), name='b_fc5')
 
     # input for pixel data
-    s = tf.placeholder("float", [None, 120, 160, 4], name='input')
+    inp = tf.placeholder("float", [None, 120, 160, 4], name='input')
 
     # Computes rectified linear unit activation fucntion on  a 2-D convolution
     # given 4-D input and filter tensors. and
-    conv1 = tf.nn.relu(tf.nn.conv2d(s, W_conv1, strides=[1, 4, 4, 1], padding="VALID") + b_conv1)
+    conv1 = tf.nn.relu(tf.nn.conv2d(inp, W_conv1, strides=[1, 4, 4, 1], padding="VALID") + b_conv1)
 
     conv2 = tf.nn.relu(tf.nn.conv2d(conv1, W_conv2, strides=[1, 2, 2, 1], padding="VALID") + b_conv2)
 
@@ -90,9 +90,21 @@ def createGraph():
 
     fc4 = tf.nn.relu(tf.matmul(conv3_flat, W_fc4) + b_fc4)
 
-    fc5 = tf.matmul(fc4, W_fc5) + b_fc5
+    out = tf.matmul(fc4, W_fc5) + b_fc5
 
-    return s, fc5
+    return inp, out
+
+
+# loading saved models
+def restoreSession(sess):
+    saver = tf.train.Saver()
+    checkpoint = tf.train.get_checkpoint_state("saved_models")
+    if checkpoint and checkpoint.model_checkpoint_path:
+        saver.restore(sess, checkpoint.model_checkpoint_path)
+        print("Successfully loaded:", checkpoint.model_checkpoint_path)
+    else:
+        print("Could not find old network weights")
+    return sess
 
 
 # deep q network. feed in pixel data to graph session
@@ -118,7 +130,7 @@ def trainGraph(inp, out, sess):
     D = deque()
 
     # intial frame
-    observation_n = env.reset()
+    env.reset()
 
     observation_n, reward_t, done_t, info = env.step([[('KeyValue', 'ArrowUp', True)]])
     while info['n'][0]['env_status.env_state'] is None:
@@ -215,8 +227,13 @@ def trainGraph(inp, out, sess):
 def main():
     # create session
     sess = tf.InteractiveSession()
+
     # input layer and output layer by creating graph
     inp, out = createGraph()
+
+    # restore sess
+    sess = restoreSession(sess)
+
     # train our graph on input and output with session variables
     trainGraph(inp, out, sess)
 
