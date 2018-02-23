@@ -115,7 +115,7 @@ def testGraph(inp, out, sess):
     print(info)
 
     # testing time
-    while(1):
+    while True:
 
         # output tensor
         out_t = out.eval(session=sess, feed_dict={inp: [inp_t]})

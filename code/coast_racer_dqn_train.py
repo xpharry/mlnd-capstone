@@ -104,7 +104,7 @@ def trainGraph(inp, out, sess):
     gt = tf.placeholder("float", [None])  # ground truth
 
     # action
-    action = tf.reduce_sum(tf.matmul(out, argmax), reduction_indices=1)
+    action = tf.reduce_sum(tf.multiply(out, argmax), reduction_indices=1)
     # cost function we will reduce through backpropagation
     cost = tf.reduce_mean(tf.square(action - gt))
     # optimization fucntion to reduce our minimize our cost function
@@ -195,7 +195,7 @@ def trainGraph(inp, out, sess):
 
             # add values to our batch
             for i in range(0, len(minibatch)):
-                gt_batch.append(reward_batch[i] + GAMMA * np.max(out_batch[i]))
+                gt_batch.append(reward_batch[i] + GAMMA * np.max(out_batch[i]))  # target = reward + gamma * max(Q)
             gt_batch = np.mean(gt_batch, axis=1)
 
             # train on that
