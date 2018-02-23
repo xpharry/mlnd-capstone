@@ -81,19 +81,20 @@ def restoreGraph():
 
     out = tf.matmul(fc4, W_fc5) + b_fc5
 
-    return sess, inp, out
+    return inp, out
 
 
 # loading saved models
 def restoreSession(sess):
     saver = tf.train.Saver()
-    checkpoint = tf.train.get_checkpoint_state("saved_models")
+    checkpoint = tf.train.get_checkpoint_state("../saved_models")
     if checkpoint and checkpoint.model_checkpoint_path:
         saver.restore(sess, checkpoint.model_checkpoint_path)
         print("Successfully loaded:", checkpoint.model_checkpoint_path)
+        return sess
     else:
         print("Could not find old network weights")
-    return sess
+        return None
 
 
 # deep q network. feed in pixel data to graph session
@@ -156,7 +157,10 @@ def main():
     # restore sess
     sess = restoreSession(sess)
 
-    testGraph(inp, out, sess)
+    if sess:
+        testGraph(inp, out, sess)
+    else:
+        print("Failed to load the saved model ...")
 
 
 if __name__ == "__main__":

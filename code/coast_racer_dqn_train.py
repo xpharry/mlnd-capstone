@@ -98,7 +98,7 @@ def createGraph():
 # loading saved models
 def restoreSession(sess):
     saver = tf.train.Saver()
-    checkpoint = tf.train.get_checkpoint_state("saved_models")
+    checkpoint = tf.train.get_checkpoint_state("../saved_models")
     if checkpoint and checkpoint.model_checkpoint_path:
         saver.restore(sess, checkpoint.model_checkpoint_path)
         print("Successfully loaded:", checkpoint.model_checkpoint_path)
@@ -219,7 +219,7 @@ def trainGraph(inp, out, sess):
 
         # print our where wer are after saving where we are
         if t % 1000 == 0:
-            saver.save(sess, '../saved_models/' + 'CoasterRacer-dqn.ckpt', global_step=t)
+            saver.save(sess, '../saved_models/' + 'CoasterRacer-dqn', global_step=t)
 
         print("TIMESTEP", t,  "/ EPSILON", epsilon, "/ ACTION", KEYS[maxIndex], "/ REWARD", reward_t, "/ Q_MAX %e" % np.max(out_t))
 
