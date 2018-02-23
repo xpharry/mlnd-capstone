@@ -124,7 +124,7 @@ def trainGraph(inp, out, sess):
 
     # initialise universe/gym kak:
     env = gym.make(ENV_ID)
-    env.configure(fps=5.0, remotes=1, start_timeout=15 * 60)
+    # env.configure(fps=5.0, remotes=1, start_timeout=15 * 60)
 
     # create a queue for experience replay to store policies
     D = deque()
@@ -219,7 +219,7 @@ def trainGraph(inp, out, sess):
 
         # print our where wer are after saving where we are
         if t % 10000 == 0:
-            saver.save(sess, '../saved_models/' + 'CoasterRacer' + '-dqn', global_step=t)
+            saver.save(sess, '../saved_models/' + 'CoasterRacer-dqn.ckpt', global_step=t)
 
         print("TIMESTEP", t,  "/ EPSILON", epsilon, "/ ACTION", KEYS[maxIndex], "/ REWARD", reward_t, "/ Q_MAX %e" % np.max(out_t))
 
