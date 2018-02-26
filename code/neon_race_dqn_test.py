@@ -103,8 +103,8 @@ def testGraph(inp, out, sess):
 
     # initialise universe/gym kak:
     env = gym.make(ENV_ID)
-    # env.configure(remotes=1)
-    env.configure(remotes='vnc://localhost:5900+15900')
+    env.configure(remotes=1)
+    # env.configure(remotes='vnc://localhost:5900+15900')
 
     # intial frame
     observation_n = env.reset()
