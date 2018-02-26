@@ -16,7 +16,7 @@ EXPLORE = 100000
 OBSERVE = 10000
 REPLAY_MEMORY = 50000
 BATCH = 100
-ENV_ID = 'flashgames.CoasterRacer-v0'
+ENV_ID = 'flashgames.NeonRace-v0'  # 'flashgames.CoasterRacer-v0'
 
 
 # crop video frame so NN is smaller and set range between 1 and 0; and
@@ -125,7 +125,7 @@ def trainGraph(inp, out, sess):
     # initialise universe/gym kak:
     env = gym.make(ENV_ID)
     # env.configure(fps=5.0, remotes=1, start_timeout=15 * 60)
-    env.configure(fps=5.0, remotes='vnc://localhost:5900+15900', start_timeout=15 * 60)
+    # env.configure(remotes='vnc://localhost:5900+15900')
 
     # create a queue for experience replay to store policies
     D = deque()
