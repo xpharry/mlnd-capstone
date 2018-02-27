@@ -127,7 +127,7 @@
 \subsection{Project Overview}
 
 % Reinforcement Learning
-Reinforcement Learning is a type of machine learning that allows you to create AI agents that learn from the environment by interacting with it. Just like how we learn to ride a bicycle, this kind of AI learns by trial and error. As seen in Figure 1, the brain_matrix_library represents the AI agent, which acts on the environment. After each action, the agent receives the feedback. The feedback consists of the reward and next state of the environment. The reward is usually defined by a human. If we use the analogy of the bicycle, we can define reward as the distance from the original starting point.
+Reinforcement Learning is a type of machine learning that allows you to create AI agents that learn from the environment by interacting with it. Just like how we learn to ride a bicycle, this kind of AI learns by trial and error. As seen in Figure 1, the brain represents the AI agent, which acts on the environment. After each action, the agent receives the feedback. The feedback consists of the reward and next state of the environment. The reward is usually defined by a human. If we use the analogy of the bicycle, we can define reward as the distance from the original starting point.
 
 \begin{figure}[h]
 \centering
@@ -198,16 +198,15 @@ This metric consists in playing a high number of games (e.g. 100,000) against an
 \section{Analysis}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Data Exploration}
-
-By using a Deep Q-Learning model, there is no need to use an external dataset since the data are captured along with training. 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Exploratory Visualization}
-Skip.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Coaster Racer Environment}
+
+Coaster Racer Flash Game is a typical car racing game wrapped in OpenAI-Universe which is simply controlled by moving forward, left turn and right turn. With this simple setting, we only only an action space of three actions, namely, moving forward, left turn and right turn. The screen view as shown in Figure 2 is for the Gamebot. After preprocessing, the image as the bot see would be thrown into a Deep Convolutional Network and output an expected action. The Q function would compute a reward based on the current action. Through a long time learning or training, it would be expected that the Gamebot would grasp a reasonable driving behavior closing to human level.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{coaster-racer}
+\caption{A screenshot of Coaster Racer Game.}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Algorithms and Techniques}
@@ -224,8 +223,7 @@ A \emph{Markov decision process} (MDP) consist of four elements:
 
     \item $\mathcal{S}$ is the set of \emph{states} (state space).
 
-    \item $\mathcal{A}$ is the set of \emph{actions} (action space). The set of actions that are
-        available in some particular state $s_t \in \mathcal{S}$ is denoted $\mathcal{A}(s_t)$.
+    \item $\mathcal{A}$ is the set of \emph{actions} (action space). The set of actions that are available in some particular state $s_t \in \mathcal{S}$ is denoted $\mathcal{A}(s_t)$.
 
     \item $ T : \mathcal{S} \times \mathcal{A} \times \mathcal{S} \to \mathbb{R}$ is the
       \emph{transition function}, which is the probability given we are in state $s_t \in
@@ -246,29 +244,16 @@ A \emph{Markov decision process} (MDP) consist of four elements:
 \subsubsection{Environment}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In the reinforcement learning problem an agent does not have access to the dynamics (reward and
-transition functions) of the MDP. However, it interacts with an \emph{environment}
- by way of three signals: a \emph{state}, which describes the
-state of the environment, an \emph{action}, which allows the agent to have some impact on the
-environment, and a \emph{reward}, which provides the agent with feedback on its immediate
-performance.
+In the reinforcement learning problem an agent does not have access to the dynamics (reward and transition functions) of the MDP. However, it interacts with an \emph{environment} by way of three signals: a \emph{state}, which describes the state of the environment, an \emph{action}, which allows the agent to have some impact on the environment, and a \emph{reward}, which provides the agent with feedback on its immediate performance.
 
 %%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Policy}
 %%%%%%%%%%%%%%%%%%%%%%
 
-In an MDP, the agent acts according to a policy $\pi$ , which maps
-each state $s \in \mathcal{S}$ to an action $a \in \mathcal{A}(s)$. A policy that specifies a unique
-action to be performed is called a \emph{deterministic} policy, and is defined as $\pi : \mathcal{S}
+In an MDP, the agent acts according to a policy $\pi$ , which maps each state $s \in \mathcal{S}$ to an action $a \in \mathcal{A}(s)$. A policy that specifies a unique action to be performed is called a \emph{deterministic} policy, and is defined as $\pi : \mathcal{S}
 \rightarrow \mathcal{A}$.
 
-The interaction between the policy used by the agent and the environment works as follows. First, it
-starts at an \emph{initial state} $s_0$. Then, the policy $\pi$ selects an action $a_0 = \pi(s_0)$
-from the set of available actions $\mathcal{A}(s_0)$, and the action is executed. The environment
-transitions to a new state $s_1$ based on the transition function $T$ with probability
-$T(s_0,a_0,s_1)$, and a reward $r_0 = R(s_0, a_0, s_1)$ is received. This process continues,
-producing a \emph{trajectory} of experience $s_0, a_0, s_1, r_1, a_1, s_2, r_2, a_2, \dots$, and the
-process ends in a \emph{terminal state} $s_T$ and is restarted in the initial state.
+The interaction between the policy used by the agent and the environment works as follows. First, it starts at an \emph{initial state} $s_0$. Then, the policy $\pi$ selects an action $a_0 = \pi(s_0)$ from the set of available actions $\mathcal{A}(s_0)$, and the action is executed. The environmenttransitions to a new state $s_1$ based on the transition function $T$ with probability $T(s_0,a_0,s_1)$, and a reward $r_0 = R(s_0, a_0, s_1)$ is received. This process continues, producing a \emph{trajectory} of experience $s_0, a_0, s_1, r_1, a_1, s_2, r_2, a_2, \dots$, and the process ends in a \emph{terminal state} $s_T$ and is restarted in the initial state.
 
 We use three types of policies in this project:
 
@@ -306,35 +291,28 @@ We use three types of policies in this project:
 \subsubsection{Value Functions}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Most of the algorithms for solving MDPs (computing optimal policies) do it by learning a \emph{value
-function}. A value function estimates what is good for an
-agent over the long run. It estimates the expected outcome from any given state, by summarizing the
-total amount of reward that an agent can expect to accumulate into a single number. Value functions
-are defined for particular policies.
+Most of the algorithms for solving MDPs (computing optimal policies) do it by learning a \emph{value function}. A value function estimates what is good for an agent over the long run. It estimates the expected outcome from any given state, by summarizing the
+total amount of reward that an agent can expect to accumulate into a single number. Value functions are defined for particular policies.
 
-The \emph{state value function} (or V-function), is the expected return when starting in state $s$
-and following policy $\pi$ thereafter~\citep{Sutton1998RL},
+The \emph{state value function} (or V-function), is the expected return when starting in state $s$ and following policy $\pi$ thereafter~\citep{Sutton1998RL},
 %
 \begin{equation}
 V^\pi(s) = \mathbb{E}_\pi \left[R_t | s_t = s \right]
 \end{equation}
 
-The \emph{action value function} (or Q-function), is the expected return after selecting action $a$
-in state $s$ and then following policy $\pi$,
+The \emph{action value function} (or Q-function), is the expected return after selecting action $a$ in state $s$ and then following policy $\pi$,
 %
 \begin{equation}
 Q^\pi(s,a) = \mathbb{E}_\pi \left[ R_t | s_t = s, a_t = a \right]
 \end{equation}
 
-The \emph{optimal value function} is the unique value function that maximises the value of every
-state, or state-action pair,
+The \emph{optimal value function} is the unique value function that maximises the value of every state, or state-action pair,
 %
 \begin{eqnarray}
 Q^*(s,a) & = & \max\limits_\pi Q^\pi(s,a), \forall s \in \mathcal{S}, a \in \mathcal{A}
 \end{eqnarray}
 
-An \emph{optimal policy} $\pi^*(s,a)$ is a policy that maximises the action value function from
-every state in the MDP,
+An \emph{optimal policy} $\pi^*(s,a)$ is a policy that maximises the action value function from every state in the MDP,
 %
 \begin{equation}
     \pi^*(s,a) = \argmax_\pi Q^\pi(s, a)
@@ -344,79 +322,37 @@ every state in the MDP,
 \subsubsection{Q-learning}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-One of the most basic and popular methods to estimate action-value functions is the
-\emph{Q-learning} algorithm~ .
-It is model-free online off-policy algorithm, whose main strength is that it is able to compare the
-expected utility of the available actions without requiring a model of the environment. Q-learning
-works by learning an action-value function that gives the expected utility of taking a given action
-in a given state and following a fixed policy thereafter. The update rule uses action-values and a
-built-in max-operator over the action-values of the next state in order to update $Q(s_t, a_t)$ as
-follows,
+One of the most basic and popular methods to estimate action-value functions is the \emph{Q-learning} algorithm. It is model-free online off-policy algorithm, whose main strength is that it is able to compare the expected utility of the available actions without requiring a model of the environment. Q-learning works by learning an action-value function that gives the expected utility of taking a given action in a given state and following a fixed policy thereafter. The update rule uses action-values and a built-in max-operator over the action-values of the next state in order to update $Q(s_t, a_t)$ as follows,
 
 \begin{equation}
 Q(s_t,a_t) \gets Q(s_t,a_t) + \alpha \left[r_{t+1} + \gamma \max_a Q(s_{t+1},a) - Q(s_t,a_t)\right]
 \end{equation}
 
-The agent makes a step in the environment from state $s_t$ to $s_{t+1}$ using action $a_t$ while
-receiving reward $r_t$. The update takes place on the action-value $a_t$ in the state $s_t$ from
-which this action was executed. This version of Q-learning works well for tasks with a small a
-state-space, since it uses arrays or tables with
-one entry for each state-action pair.
+The agent makes a step in the environment from state $s_t$ to $s_{t+1}$ using action $a_t$ while receiving reward $r_t$. The update takes place on the action-value $a_t$ in the state $s_t$ from which this action was executed. This version of Q-learning works well for tasks with a small a state-space, since it uses arrays or tables with one entry for each state-action pair.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Approximate Q-learning}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In many cases in which there are far more states than could possibly be entries in a table we need
-to use function approximation. Approximate Q-learning consists in parameterizing an approximate
-action-value function, $Q(s,a;\theta_i) \approx Q(s,a)$, in which $\theta_i$ are the parameters
-(weights) of the action-value function at iteration $i$. Usually the number of parameters of a
-function approximator is much less than the state space, which means that a change in one parameter
-can change many Q-values, as opposed to just one as in the tabular case.
+In many cases in which there are far more states than could possibly be entries in a table we need to use function approximation. Approximate Q-learning consists in parameterizing an approximate action-value function, $Q(s,a;\theta_i) \approx Q(s,a)$, in which $\theta_i$ are the parameters (weights) of the action-value function at iteration $i$. Usually the number of parameters of a function approximator is much less than the state space, which means that a change in one parameter can change many Q-values, as opposed to just one as in the tabular case.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Experience Replay}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Reinforcement learning is known to be unstable or even to diverge when a nonlinear function
-approximator such as a neural network is used to represent the action-value function. One trick to
-make it work is to use \emph{experience replay}~, which consists in storing the experiences
-$(s_t, a_t, r_t, s_{t+1})$ at each time step $t$ in a data set $D_t=\{e_1,\dots,e_t\}$. During the
-training of approximate Q-learning random minibatches from the replay memory are used instead of the
-most recent transition. This breaks the similarity of subsequent training samples, which otherwise
-might drive the network into a local minimum. The \mbox{Q-learning} update at iteration $i$ uses the
-following loss function~\citep{Mnih2015AtariNature}:
+Reinforcement learning is known to be unstable or even to diverge when a nonlinear function approximator such as a neural network is used to represent the action-value function. One trick to make it work is to use \emph{experience replay}~, which consists in storing the experiences $(s_t, a_t, r_t, s_{t+1})$ at each time step $t$ in a data set $D_t=\{e_1,\dots,e_t\}$. During the training of approximate Q-learning random minibatches from the replay memory are used instead of the most recent transition. This breaks the similarity of subsequent training samples, which otherwise might drive the network into a local minimum. The \mbox{Q-learning} update at iteration $i$ uses the following loss function~\citep{Mnih2015AtariNature}:
 
 \begin{equation}
 L_i(\theta_i) = \mathbb{E}_{(s, a, r, s') \sim U(D)} \\
                 \left[\left(r + \gamma \max_{a'} Q(s',a', \theta^-_i) - Q(s,a;\theta)\right)^2\right]
 \end{equation}
-where $(s, a, r, s') \sim U(D)$ is a sample minibatch of experience drawn uniformly at random from
-the memory pool of stores experiences.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Self-play}
-%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Self-play  is by far the most popular
-training method for games. It is a single policy $\pi(s,a)$ that is used by both players in a
-two-player game, $\pi_1(s,a) = \pi_2(s,a) = \pi(s,a)$. The first reason for its popularity is that
-training is quickest if the learner's opponent is roughly equally strong, and that definitely holds
-for self-play. As a second reason for popularity, there is no need to implement or access a
-different agent with roughly equal playing strength. However, self-play has several drawbacks, with
-the main one being that a single opponent does not provide sufficient
-exploration~.
+where $(s, a, r, s') \sim U(D)$ is a sample minibatch of experience drawn uniformly at random from the memory pool of stores experiences.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Convolutional Neural Networks}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Convolutional Neural Networks~, or CNNs, are a special type of neural network that
-has a known grid-like topology. Like most other neural networks they are trained with a variant of
-the backpropagation algorithm. CNNs strengh is pattern recognition directly from pixels of images
-with minimal processing. We use a convolutional network as a function approximator for the board of
-Connect 4, since the board can be
-thought of as a 2-D grid of pixels (discs in this case).
+Convolutional Neural Networks, or CNNs, are a special type of neural network that has a known grid-like topology. Like most other neural networks they are trained with a variant of the backpropagation algorithm. CNNs strengh is pattern recognition directly from pixels of images with minimal processing. We use a convolutional network as a function approximator for the game, since the actions are highly based on what would be seen as pixel matrix.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Benchmark}
@@ -446,11 +382,7 @@ The original input is a 3 dimensional RGB image or matrix and the data preproces
 
 Before getting started, we need to install Docker. Docker is a tool that lets you run virtual machines on the local computer. I created an image wrapping up everything necessary, like TensorFlow, OpenCV, Gym and Universe.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Refinement}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+Either run the training code to train the model or the demo code to see it in action. The demo one loads the tensors from the TF checkpoint files and runs the model.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % IV. Results (approx. 2-3 pages)
@@ -460,62 +392,10 @@ Before getting started, we need to install Docker. Docker is a tool that lets yo
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Model Evaluation and Validation}
 
+The network was trained over 10,000 time steps and the behavior has been learned gradually. Compared to random bot, it has shown obvious better performance. For better or human level behavior, more training time steps are needed. Currently, I get something promising but not perfect enough.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Justification}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Play withQ-learning}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Learning to Play Connect 4 using Q-learning with a Deep Neural Network}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Once we validated that our implementation of Q-learning is working and showed that it can learn a
-tabular value function to play Tic-Tac-Toe we moved into the more complex Connect 4. In this game,
-storing the Q-values for every board position in a lookup table is not feasible because of its huge
-state space. Instead of using tabular Q-learning, we used approximate
-Q-learning~ with a deep neural network
-(DNN). This approach consists in
-parameterizing an approximate action-value function, $Q(s,a;\theta_i) \approx Q(s,a)$, in which
-$\theta_i$ are the weights of the neural network.
-
-In some games it can be more efficient to consider the \emph{afterstate value} $V(s \circ a)$, which
-is the state reached after taking action $a$ in state $s$, instead of the Q-value $Q(s,
-a)$~\citep{Sutton1998RL}. We used this approach by using a DNN that takes the state of the board in
-the input layer, as shown in \hyperref[fig:c4-dnn-input] {Figure~\ref*{fig:c4-dnn-input}}, and
-outputs the value of being in that state, $V(s)$. After the input layer, we used convolutions with 4
-layers of 64 filters of size $3\times3$ and rectified linear non-linearities. In addition to the
-convolutions, we added a densely-connected layer with 256 units. Finally, the output layer has only
-one unit that fires the value of the given board with a $tanh$ activation function to keep it in the
-range $[-1, +1]$.
-
-In this experiment our goal was to learn to play Connect 4
-starting from 8-ply positions from the UCI Connect 4 dataset (\hyperref[sec:uci-c4]
-{Section~\ref*{sec:uci-c4}}). In these positions we already know the game-theoretical outcome of the
-game assuming perfect play from both players, however, we did not use the outcome for training (no
-supervised learning), only for evaluation. This helped us to start every episode of Q-learning
-training from different board positions, which is helpful to learn to generalize by seeing all kinds
-of board positions.
-
-In \hyperref[fig:c4-ql-dn-uci] {Figure~\ref*{fig:c4-ql-dn-uci}} we can see how the quality of the
-target policy improved during training. The policy was evaluated during training every 500 episodes
-by playing 3,000 games against a random player starting from randomly selected 8-ply positions from
-the UCI Connect 4 dataset. The first 1,000 games started from positions where the outcome is a win
-for the first player assuming perfect play from both sides. \hyperref[fig:c4-ql-dn-uci-wins]
-{Figure~\ref*{fig:c4-ql-dn-uci-wins}} shows how the policy improved from a 56\% to a 94\% win rate
-after 15,000 episodes. This makes sense because the matches started from favorable positions with
-higher probability of winning for the first player. The next 1,000 games started from
-game-theoretical draw positions (\hyperref[fig:c4-ql-dn-uci-draws]
-{Figure~\ref*{fig:c4-ql-dn-uci-draws}}).  As expected, the win rate at the beginning was 50\%, but
-then it went up to 92\%. Good improvement, but a little lower win rate than when starting from
-favorable positions. Finally, the last 1,000 games (\hyperref[fig:c4-ql-dn-uci-losses]
-{Figure~\ref*{fig:c4-ql-dn-uci-losses}}) started from unfavorable positions that are guaranteed wins
-for the second player under optimal play from both sides. In this case the win rate before the
-policy begins learning is 45\%, but then it went up to a 90\% win rate. This was also expected,
-since we started at a disadvantage.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -526,35 +406,22 @@ since we started at a disadvantage.
 \section{Conclusion}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Free-Form Visualization}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Reflection}
-The most difficult aspect of this project was that is extremely hard to stabilize reinforcement
-learning with non-linear function approximators via self-play. There are plenty of tricks that can
-be used and hyperparameters that need to be tuned to get it to work, such as:
+The most difficult aspect of this project was that is extremely hard to stabilize reinforcement learning with non-linear function approximators. There are plenty of tricks that can be used and hyperparameters that need to be tuned to get it to work, such as:
 
 \begin{itemize}
 
-    \item \textbf{Q-learning}: exploration policy (random?, $\epsilon$-greedy?), discount factor,
-        learning rate, number of episodes.
+    \item \textbf{Q-learning}: exploration policy, discount factor, learning rate, number of episodes.
 
     \item \textbf{Experience Replay}: batch size, experience pool size.
 
-    \item \textbf{Deep Neural Network}: mlp? convnets? number of layers, number of filters, number
-        of kernels, optimizer (vanilla sgd, adam, rprop), learning rate, pooling, activation
-        functions, etc.
+    \item \textbf{Deep Neural Network}: convnets, number of layers, number of filters, number of kernels, optimizer (vanilla sgd, adam, rprop), learning rate, pooling, activation functions, etc.
 
-    \item \textbf{$\epsilon$-greedy}: fixed $\epsilon$? decrease $\epsilon$? initial value for
-        $\epsilon$?, how many episodes to decrease it? final value?
+    \item \textbf{$\epsilon$-greedy}: fixed $\epsilon$ or decrease $\epsilon$, initial value for $\epsilon$, how many episodes to decrease it, final value.
 
 \end{itemize}
 
-All these techniques and parameters were selected by trial and error, and no systematic grid search
-was done due to the high computational cost. More than once it seemed that the implementation of the
-algorithms and techniques was incorrect, and it turned out that the wrong parameters were being
-used. A ``simple'' change such as decreasing $\epsilon$, or changing the neural network optimizer
-made big changes in the performance of the value function.
+All these techniques and parameters were selected by trial and error, and no systematic grid search was done due to the high computational cost. More than once it seemed that the implementation of the algorithms and techniques was incorrect, and it turned out that the wrong parameters were being used. A ``simple'' change such as decreasing $\epsilon$, or changing the neural network optimizer made big changes in the performance of the value function.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Improvement}
@@ -562,14 +429,9 @@ There are at least two aspects we can improve in the next stage,
 
 \begin{enumerate}
 
-    \item \textbf{Better benchmarks:} In most of this project we used simple benchmarkers, such as
-        playing against random players. While testing against random is probably the first thing to
-        test against (if you can't beat a random player your learning algorithm is not working), it
-        would be better to find a few heuristics and better players that can be used for testing.
+    \item \textbf{Better benchmarks:} In most of this project we used simple benchmarkers, such as playing against random players. While testing against random is probably the first thing to test against (if you can't beat a random player your learning algorithm is not working), it would be better to find a few heuristics and better players that can be used for testing.
 
-    \item \textbf{Incorporate other RL techniques:} The field of RL has been advancing fast in
-        recent years. There are a few new and old techniques that I would like to try, such as
-        asynchronous RL, double Q-learning, prioritized experience replay.
+    \item \textbf{Incorporate other RL techniques:} The field of RL has been advancing fast in recent years. There are a few new and old techniques that I would like to try, such as asynchronous RL, double Q-learning, prioritized experience replay.
 
 \end{enumerate}
 

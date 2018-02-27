@@ -1,0 +1,13 @@
+\begin{thebibliography}{1}
+
+\bibitem{Sutton1998RL}
+R.~S. Sutton and A.~G. Barto.
+\newblock {\em Reinforcement Learning: An Introduction}.
+\newblock MIT Press, 1998.
+
+\bibitem{Mnih2015AtariNature}
+V.~Mni et~al.
+\newblock Human-level control through deep reinforcement learning.
+\newblock {\em Nature}, pages 529--533, 2015.
+
+\end{thebibliography}

@@ -202,7 +202,6 @@ python coast_racer_rl.py
 
 #### 2) Play with DQN
 
-Either run `coast_racer_dqn_train.py` to train the model or `coast_racer_dqn_demo.py` to see it in action. demo.py loads the tensors from the TF checkpoint files and runs the model. (Check the file name that this tries to restore from if you haven't left this to train completely using my code or have made any alterations.)
 
 Note that `coast_racer_dqn_train.py` doesn't render anything and as such, needs to be VNCd into to see whats happening.
 
