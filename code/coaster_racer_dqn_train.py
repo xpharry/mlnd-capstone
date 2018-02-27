@@ -9,14 +9,15 @@ import tensorflow as tf
 # hyper params:
 ACTIONS = 3  # left, right, stay
 KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp']
-GAMMA = 0.99
+GAMMA = 0.9
 INITIAL_EPSILON = 1.0
-FINAL_EPSILON = 0.05
+FINAL_EPSILON = 0.1
 EXPLORE = 100000
 OBSERVE = 10000
 REPLAY_MEMORY = 50000
 BATCH = 100
-ENV_ID = 'flashgames.NeonRace-v0'  # 'flashgames.CoasterRacer-v0'
+ENV_ID = 'flashgames.CoasterRacer-v0'
+# ['flashgames.DuskDrive-v0', 'flashgames.CoasterRacer-v0', 'flashgames.CoasterRacer3-v0', 'flashgames.NeonRace-v0']
 
 
 # crop video frame so NN is smaller and set range between 1 and 0; and
@@ -125,7 +126,7 @@ def trainGraph(inp, out, sess):
     # initialise universe/gym kak:
     env = gym.make(ENV_ID)
     # env.configure(fps=5.0, remotes=1, start_timeout=15 * 60)
-    # env.configure(remotes='vnc://localhost:5900+15900')
+    env.configure(fps=5.0, remotes='vnc://localhost:5900+15900', start_timeout=15 * 60)
 
     # create a queue for experience replay to store policies
     D = deque()
@@ -136,7 +137,7 @@ def trainGraph(inp, out, sess):
     observation_n, reward_t, done_t, info = env.step([[('KeyValue', 'ArrowUp', True)]])
     while info['n'][0]['env_status.env_state'] is None:
         observation_n, reward_t, done_t, info = env.step([[('KeyValue', 'ArrowUp', True)]])
-        # env.render()
+        env.render()
 
     observation_t = processFrame(observation_n)
 
@@ -175,10 +176,13 @@ def trainGraph(inp, out, sess):
 
         action_t, previous_argmax = appendActions(observation_n, argmax_t, previous_argmax)
         observation_n, reward_t, done_t, info = env.step(action_t)
-        # env.render()
+        env.render()
 
-        while observation_n[0] is None:
-            observation_n, reward_t, done_t, info = env.step([[('KeyValue', 'ArrowUp', True)]])
+        if observation_n[0] is None:
+            continue
+
+        # while observation_n[0] is None:
+        #     observation_n, reward_t, done_t, info = env.step([[('KeyValue', 'ArrowUp', True)]])
 
         observation_t = processFrame(observation_n)
 

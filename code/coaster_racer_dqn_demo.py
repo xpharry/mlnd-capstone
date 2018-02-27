@@ -9,8 +9,8 @@ import tensorflow as tf
 # hyper params:
 ACTIONS = 3  # left, right, stay
 KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp']
-ENV_ID = 'flashgames.NeonRace-v0'
-# ENV_ID = 'flashgames.CoasterRacer-v0'
+ENV_ID = 'flashgames.CoasterRacer-v0'
+# ['flashgames.DuskDrive-v0', 'flashgames.CoasterRacer-v0', 'flashgames.CoasterRacer3-v0', 'flashgames.NeonRace-v0']
 
 
 # crop video frame so NN is smaller and set range between 1 and 0; and
@@ -103,8 +103,8 @@ def testGraph(inp, out, sess):
 
     # initialise universe/gym kak:
     env = gym.make(ENV_ID)
-    env.configure(remotes=1)
-    # env.configure(remotes='vnc://localhost:5900+15900')
+    # env.configure(fps=5.0, remotes=1, start_timeout=15 * 60)
+    env.configure(fps=5.0, remotes='vnc://localhost:5900+15900', start_timeout=15 * 60)
 
     # intial frame
     observation_n = env.reset()

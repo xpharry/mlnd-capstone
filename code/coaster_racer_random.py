@@ -1,7 +1,7 @@
 import gym
 import universe # register the universe environments
 
-env = gym.make('flashgames.NeonRace-v0') # You can run many environment in parallel
+env = gym.make('flashgames.CoasterRacer-v0') # You can run many environment in parallel
 env.configure(remotes=1) # automatically creates a local docker container
 observation_n = env.reset() # Initiate the environment and get list of observations of its initial state
 while True:
