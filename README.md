@@ -208,6 +208,7 @@ Note that `coast_racer_dqn_train.py` doesn't render anything and as such, needs 
 
 ### Video Demo
 
+[Youtube Link](https://youtu.be/VdVA3od4tVs)
 
 ## Credits
 
