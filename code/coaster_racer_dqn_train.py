@@ -126,7 +126,7 @@ def trainGraph(inp, out, sess):
     # initialise universe/gym kak:
     env = gym.make(ENV_ID)
     # env.configure(fps=5.0, remotes=1, start_timeout=15 * 60)
-    env.configure(fps=5.0, remotes='vnc://localhost:5900+15900', start_timeout=15 * 60)
+    env.configure(fps=5.0, remotes='vnc://localhost:5900+15901', start_timeout=15 * 60)
 
     # create a queue for experience replay to store policies
     D = deque()

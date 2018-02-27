@@ -2,7 +2,8 @@ import gym
 import universe # register the universe environments
 
 env = gym.make('flashgames.CoasterRacer-v0')  # You can run many environment in parallel
-env.configure(remotes=1)  # automatically creates a local docker container
+# env.configure(remotes=1)  # automatically creates a local docker container
+env.configure(remotes='vnc://localhost:5900+15901')
 observation_n = env.reset()  # Initiate the environment and get list of observations of its initial state
 while True:
     action_n = [[('KeyEvent', 'ArrowUp', True)] for ob in observation_n]  # your agent here
