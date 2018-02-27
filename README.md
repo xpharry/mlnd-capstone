@@ -192,6 +192,7 @@ to check if you can run docker without sudo.
 - Run
 
 ```
+docker run -p 5900:5900 -p 15900:15901 --cap-add SYS_ADMIN --ipc host --privileged quay.io/openai/universe.flashgames:0.20.7
 ```
 
 - Run
@@ -202,12 +203,40 @@ python coast_racer_rl.py
 
 #### 2) Play with DQN
 
+**Training**
+
+- Run
+
+```
+docker run -p 5900:5900 -p 15900:15901 --cap-add SYS_ADMIN --ipc host --privileged quay.io/openai/universe.flashgames:0.20.7
+```
+
+- Run
+
+```
+python coast_racer_dqn_train.py
+```
+
+**Test**
+
+- Run
+
+```
+docker run -p 5900:5900 -p 15900:15901 --cap-add SYS_ADMIN --ipc host --privileged quay.io/openai/universe.flashgames:0.20.7
+```
+
+- Run
+
+```
+python coast_racer_dqn_test.py
+```
 
 Note that `coast_racer_dqn_train.py` doesn't render anything and as such, needs to be VNCd into to see whats happening.
 
 
 ### Video Demo
 
+[Youtube Link](https://youtu.be/VdVA3od4tVs)
 
 ## Credits
 
