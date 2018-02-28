@@ -222,7 +222,7 @@ python coast_racer_dqn_train.py
 - Run
 
 ```
-docker run -p 5900:5900 -p 15900:15901 --cap-add SYS_ADMIN --ipc host --privileged quay.io/openai/universe.flashgames:0.20.7
+docker run -p 5900:5900 -p 15901:15901 --cap-add SYS_ADMIN --ipc host --privileged quay.io/openai/universe.flashgames:0.20.7
 ```
 
 - Run
