@@ -9,9 +9,9 @@ import tensorflow as tf
 # hyper params:
 ACTIONS = 3  # left, right, stay
 KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp']
-GAMMA = 0.9
+GAMMA = 0.99
 INITIAL_EPSILON = 1.0
-FINAL_EPSILON = 0.1
+FINAL_EPSILON = 0.05
 EXPLORE = 100000
 OBSERVE = 10000
 REPLAY_MEMORY = 50000
