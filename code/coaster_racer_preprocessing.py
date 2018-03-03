@@ -23,9 +23,8 @@ def processFrame(observation_n):
         obs = cropFrame(obs)
         cv2.imwrite('../images/cropped/cropped-vision-' + now + '.png', cv2.cvtColor(obs, cv2.COLOR_RGB2BGR))
 
-        # downscale resolution (not sure about sizing here, was (120,160) when
-        # I started but it felt like that was just truncating the colourspace)
-        obs = cv2.resize(obs, (120, 160))
+        # downscale resolution
+        obs = cv2.resize(obs, (80, 80))
         cv2.imwrite('../images/resized/resized-vision-' + now + '.png', cv2.cvtColor(obs, cv2.COLOR_RGB2BGR))
 
         # grayscale
@@ -39,7 +38,7 @@ def processFrame(observation_n):
         obs *= (1.0 / 255.0)
 
         # re-shape a bitch
-        obs = np.reshape(obs, [120, 160])
+        obs = np.reshape(obs, [80, 80])
 
     return obs
 
@@ -48,7 +47,7 @@ def processFrame(observation_n):
 
 def cropFrame(obs):
     # adds top = 84 and left = 18 to height and width:
-    return obs[84:564, 18:658, :]
+    return obs[284:564, 18:658, :]
 
 
 env = gym.make('flashgames.CoasterRacer-v0')  # You can run many environment in parallel
