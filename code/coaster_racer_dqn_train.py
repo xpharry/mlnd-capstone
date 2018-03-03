@@ -9,12 +9,12 @@ import tensorflow as tf
 # hyper params:
 ACTIONS = 3  # left, right, stay
 KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp']
-GAMMA = 0.99
+GAMMA = 0.995
 INITIAL_EPSILON = 1.0
-FINAL_EPSILON = 0.05
+FINAL_EPSILON = 0.005
 EXPLORE = 100000
 OBSERVE = 10000
-REPLAY_MEMORY = 50000
+REPLAY_MEMORY = 1000000
 BATCH = 100
 ENV_ID = 'flashgames.CoasterRacer-v0'
 # ['flashgames.DuskDrive-v0', 'flashgames.CoasterRacer-v0', 'flashgames.CoasterRacer3-v0', 'flashgames.NeonRace-v0']
@@ -29,7 +29,7 @@ def processFrame(observation_n):
         obs = cropFrame(obs)
         # downscale resolution (not sure about sizing here, was (120,160) when
         # I started but it felt like that was just truncating the colourspace)
-        obs = cv2.resize(obs, (120, 160))
+        obs = cv2.resize(obs, (80, 80))
         # greyscale
         obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
         # Convert to float
@@ -37,7 +37,7 @@ def processFrame(observation_n):
         # scale from 1 to 255
         obs *= (1.0 / 255.0)
         # re-shape a bitch
-        obs = np.reshape(obs, [120, 160])
+        obs = np.reshape(obs, [80, 80])
     return obs
 
 # crop frame to only flash portion:
@@ -45,7 +45,7 @@ def processFrame(observation_n):
 
 def cropFrame(obs):
     # adds top = 84 and left = 18 to height and width:
-    return obs[84:564, 18:658, :]
+    return obs[284:564, 18:658, :]
 
 
 # Add appropiate actions to system
@@ -69,14 +69,14 @@ def createGraph():
     W_conv3 = tf.Variable(tf.zeros([3, 3, 64, 64]), name='W_conv3')
     b_conv3 = tf.Variable(tf.zeros([64]), name='b_conv3')
 
-    W_fc4 = tf.Variable(tf.zeros([11264, 784]), name='W_fc4')
-    b_fc4 = tf.Variable(tf.zeros([784]), name='b_fc4')
+    W_fc4 = tf.Variable(tf.zeros([1600, 512]), name='W_fc4')
+    b_fc4 = tf.Variable(tf.zeros([512]), name='b_fc4')
 
-    W_fc5 = tf.Variable(tf.zeros([784, ACTIONS]), name='W_fc5')
+    W_fc5 = tf.Variable(tf.zeros([512, ACTIONS]), name='W_fc5')
     b_fc5 = tf.Variable(tf.zeros([ACTIONS]), name='b_fc5')
 
     # input for pixel data
-    inp = tf.placeholder("float", [None, 120, 160, 4], name='input')
+    inp = tf.placeholder("float", [None, 80, 80, 4], name='input')
 
     # Computes rectified linear unit activation fucntion on  a 2-D convolution
     # given 4-D input and filter tensors. and
@@ -87,7 +87,7 @@ def createGraph():
     conv3 = tf.nn.relu(tf.nn.conv2d(conv2, W_conv3, strides=[1, 1, 1, 1], padding="VALID") + b_conv3)
 
     # flatten conv3:
-    conv3_flat = tf.reshape(conv3, [-1, 11264])
+    conv3_flat = tf.reshape(conv3, [-1, 1600])
 
     fc4 = tf.nn.relu(tf.matmul(conv3_flat, W_fc4) + b_fc4)
 
@@ -126,7 +126,7 @@ def trainGraph(inp, out, sess):
     # initialise universe/gym kak:
     env = gym.make(ENV_ID)
     # env.configure(fps=5.0, remotes=1, start_timeout=15 * 60)
-    env.configure(fps=5.0, remotes='vnc://localhost:5900+15901', start_timeout=15 * 60)
+    env.configure(fps=5.0, remotes='vnc://localhost:5900+15901', start_timeout=15*60)
 
     # create a queue for experience replay to store policies
     D = deque()
@@ -186,7 +186,7 @@ def trainGraph(inp, out, sess):
 
         observation_t = processFrame(observation_n)
 
-        inp_t1 = np.append(np.reshape(observation_t, [120, 160, 1]), inp_t[:, :, 0:3], axis=2)
+        inp_t1 = np.append(np.reshape(observation_t, [80, 80, 1]), inp_t[:, :, 0:3], axis=2)
 
         # add our input tensor, argmax tensor, reward and updated input tensor
         # to stack of experiences
