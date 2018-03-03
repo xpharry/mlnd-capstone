@@ -27,8 +27,7 @@ def processFrame(observation_n):
         obs = observation_n[0]['vision']
         # crop
         obs = cropFrame(obs)
-        # downscale resolution (not sure about sizing here, was (120,160) when
-        # I started but it felt like that was just truncating the colourspace)
+        # downscale resolution
         obs = cv2.resize(obs, (80, 80))
         # greyscale
         obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
@@ -69,7 +68,7 @@ def createGraph():
     W_conv3 = tf.Variable(tf.zeros([3, 3, 64, 64]), name='W_conv3')
     b_conv3 = tf.Variable(tf.zeros([64]), name='b_conv3')
 
-    W_fc4 = tf.Variable(tf.zeros([1600, 512]), name='W_fc4')
+    W_fc4 = tf.Variable(tf.zeros([2304, 512]), name='W_fc4')
     b_fc4 = tf.Variable(tf.zeros([512]), name='b_fc4')
 
     W_fc5 = tf.Variable(tf.zeros([512, ACTIONS]), name='W_fc5')
@@ -87,7 +86,7 @@ def createGraph():
     conv3 = tf.nn.relu(tf.nn.conv2d(conv2, W_conv3, strides=[1, 1, 1, 1], padding="VALID") + b_conv3)
 
     # flatten conv3:
-    conv3_flat = tf.reshape(conv3, [-1, 1600])
+    conv3_flat = tf.reshape(conv3, [-1, 2304])
 
     fc4 = tf.nn.relu(tf.matmul(conv3_flat, W_fc4) + b_fc4)
 
