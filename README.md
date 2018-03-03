@@ -38,27 +38,13 @@ sudo apt-get install golang libjpeg-turbo8-dev make
 
 ##### On Ubuntu 14.04:
 
-```shell
-sudo add-apt-repository ppa:ubuntu-lxc/lxd-stable  # for newer golang
-sudo apt-get update
-sudo apt-get install golang libjpeg-turbo8-dev make
-```
-
-**NOTE:**
-
-There might be an error showing:
-
-```bash
-Cannot add PPA: 'ppa:ubuntu-lxc/lxd-stable'.
-Please check that the PPA name or format is correct.
-```
-
-If that's the case, try:
+golang v1.9
 
 ```
 $ sudo add-apt-repository ppa:gophers/archive
 $ sudo apt-get update
 $ sudo apt-get install golang-1.9-go
+$ sudo apt-get install libjpeg-turbo8-dev make
 ```
 
 **Note** that golang-1.9-go puts binaries in /usr/lib/go-1.9/bin.
