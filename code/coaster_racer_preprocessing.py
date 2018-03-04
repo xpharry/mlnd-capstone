@@ -21,15 +21,15 @@ def processFrame(observation_n):
 
         # crop
         obs = cropFrame(obs)
-        cv2.imwrite('../images/cropped/cropped-vision-' + now + '.png', cv2.cvtColor(obs, cv2.COLOR_RGB2BGR))
+        cv2.imwrite('../images/preprocessing/cropped/cropped-vision-' + now + '.png', cv2.cvtColor(obs, cv2.COLOR_RGB2BGR))
 
         # downscale resolution
         obs = cv2.resize(obs, (80, 80))
-        cv2.imwrite('../images/resized/resized-vision-' + now + '.png', cv2.cvtColor(obs, cv2.COLOR_RGB2BGR))
+        cv2.imwrite('../images/preprocessing/downsized/downsized-vision-' + now + '.png', cv2.cvtColor(obs, cv2.COLOR_RGB2BGR))
 
         # grayscale
         obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
-        cv2.imwrite('../images/gray/gray-vision-' + now + '.png', obs)
+        cv2.imwrite('../images/preprocessing/grayscaled/grayscaled-vision-' + now + '.png', obs)
 
         # Convert to float
         obs = obs.astype(np.float32)
@@ -51,8 +51,8 @@ def cropFrame(obs):
 
 
 env = gym.make('flashgames.CoasterRacer-v0')  # You can run many environment in parallel
-# env.configure(remotes=1)  # automatically creates a local docker container
-env.configure(remotes='vnc://localhost:5900+15901')
+env.configure(remotes=1)  # automatically creates a local docker container
+# env.configure(remotes='vnc://localhost:5900+15901')
 observation_n = env.reset()  # Initiate the environment and get list of observations of its initial state
 
 while True:

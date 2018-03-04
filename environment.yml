@@ -12,6 +12,7 @@ dependencies:
   - numpy==1.14.1
   - opencv-python==3.4.0.12
   - pillow==5.0.0
+  - matplotlib==2.1.2
   - tensorflow-gpu==1.4.1
   - gym==0.7.4
   - universe==0.21.3
