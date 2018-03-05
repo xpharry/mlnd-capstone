@@ -22,7 +22,7 @@ def processFrame(observation_n):
         obs = cropFrame(obs)
         # downscale resolution (not sure about sizing here, was (120,160) when
         # I started but it felt like that was just truncating the colourspace)
-        obs = cv2.resize(obs, (120, 160))
+        obs = cv2.resize(obs, (80, 80))
         # greyscale
         obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
         # Convert to float
@@ -30,7 +30,7 @@ def processFrame(observation_n):
         # scale from 1 to 255
         obs *= (1.0 / 255.0)
         # re-shape a bitch
-        obs = np.reshape(obs, [120, 160])
+        obs = np.reshape(obs, [80, 80])
     return obs
 
 
@@ -61,14 +61,14 @@ def restoreGraph():
     W_conv3 = tf.Variable(tf.zeros([3, 3, 64, 64]), name='W_conv3')
     b_conv3 = tf.Variable(tf.zeros([64]), name='b_conv3')
 
-    W_fc4 = tf.Variable(tf.zeros([11264, 784]), name='W_fc4')
-    b_fc4 = tf.Variable(tf.zeros([784]), name='b_fc4')
+    W_fc4 = tf.Variable(tf.zeros([2304, 512]), name='W_fc4')
+    b_fc4 = tf.Variable(tf.zeros([512]), name='b_fc4')
 
-    W_fc5 = tf.Variable(tf.zeros([784, ACTIONS]), name='W_fc5')
+    W_fc5 = tf.Variable(tf.zeros([512, ACTIONS]), name='W_fc5')
     b_fc5 = tf.Variable(tf.zeros([ACTIONS]), name='b_fc5')
 
     # Restore NN structure and input and output place holders:
-    inp = tf.placeholder("float", [None, 120, 160, 4])
+    inp = tf.placeholder("float", [None, 80, 80, 4])
 
     conv1 = tf.nn.relu(tf.nn.conv2d(inp, W_conv1, strides=[1, 4, 4, 1], padding="VALID") + b_conv1)
 
@@ -76,7 +76,7 @@ def restoreGraph():
 
     conv3 = tf.nn.relu(tf.nn.conv2d(conv2, W_conv3, strides=[1, 1, 1, 1], padding="VALID") + b_conv3)
     # flatten conv3:
-    conv3_flat = tf.reshape(conv3, [-1, 11264])
+    conv3_flat = tf.reshape(conv3, [-1, 2304])
 
     fc4 = tf.nn.relu(tf.matmul(conv3_flat, W_fc4) + b_fc4)
 
@@ -104,7 +104,7 @@ def testGraph(inp, out, sess):
     # initialise universe/gym kak:
     env = gym.make(ENV_ID)
     # env.configure(fps=5.0, remotes=1, start_timeout=15 * 60)
-    env.configure(fps=5.0, remotes='vnc://localhost:5900+15901', start_timeout=15 * 60)
+    env.configure(fps=5.0, remotes='vnc://localhost:5900+15901', start_timeout=15*60)
 
     # intial frame
     observation_n = env.reset()
@@ -143,7 +143,7 @@ def testGraph(inp, out, sess):
 
         observation_t = processFrame(observation_n)
 
-        inp_t1 = np.append(np.reshape(observation_t, [120, 160, 1]), inp_t[:, :, 0:3], axis=2)
+        inp_t1 = np.append(np.reshape(observation_t, [80, 80, 1]), inp_t[:, :, 0:3], axis=2)
 
         # update our input tensor the the next frame
         inp_t = inp_t1
