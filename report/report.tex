@@ -518,21 +518,12 @@ The network was trained over 10,000 time steps and the behavior has been learned
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Reflection}
-The most difficult aspect of this project was that is extremely hard to stabilize reinforcement learning with non-linear function approximators. There are plenty of tricks that can be used and hyperparameters that need to be tuned to get it to work, such as:
 
-\begin{itemize}
-
-    \item \textbf{Q-learning}: exploration policy, discount factor, learning rate, number of episodes.
-
-    \item \textbf{Experience Replay}: batch size, experience pool size.
-
-    \item \textbf{Deep Neural Network}: convnets, number of layers, number of filters, number of kernels, optimizer (vanilla sgd, adam, rprop), learning rate, pooling, activation functions, etc.
-
-    \item \textbf{$\epsilon$-greedy}: fixed $\epsilon$ or decrease $\epsilon$, initial value for $\epsilon$, how many episodes to decrease it, final value.
-
-\end{itemize}
+The most difficult aspect of this project was that is extremely hard to stabilize reinforcement learning with non-linear function approximators. There are plenty of tricks that can be used and hyper-parameters that need to be tuned to get it to work, such as exploration policy, discount factor, learning rate, number of episodes, batch size, experience pool size  and initial value for ?.
 
 All these techniques and parameters were selected by trial and error, and no systematic grid search was done due to the high computational cost. More than once it seemed that the implementation of the algorithms and techniques was incorrect, and it turned out that the wrong parameters were being used. A ``simple'' change such as decreasing $\epsilon$, or changing the neural network optimizer made big changes in the performance of the value function.
+
+Also a huge difficulty of a reinforcement learning problem could be the time lag between the action and the reward. When training with grouped actions off of the heuristic reward function, the reward for a given action was immediate, and this network showed the best performance. The next best performance came from a network based off of grouped actions, where actions were only a few steps removed from the next reward. Our worst performance came from the networks trained to estimate actions, where actions were several dozen steps removed from the next rewards.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Improvement}
@@ -540,7 +531,7 @@ There are at least two aspects we can improve in the next stage,
 
 \begin{enumerate}
 
-    \item \textbf{Better benchmarks:} In most of this project we used simple benchmarkers, such as playing against random players. While testing against random is probably the first thing to test against (if you can't beat a random player your learning algorithm is not working), it would be better to find a few heuristics and better players that can be used for testing.
+    \item \textbf{Better benchmarks:} In most of this project we used simple benchmarks, such as playing against random players. While testing against random is probably the first thing to test against (if you can't beat a random player your learning algorithm is not working), it would be better to find a few heuristics and better players that can be used for testing.
 
     \item \textbf{Incorporate other RL techniques:} The field of RL has been advancing fast in recent years. There are a few new and old techniques that I would like to try, such as asynchronous RL, double Q-learning, prioritized experience replay.
 
