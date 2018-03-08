@@ -1,14 +1,22 @@
 import cv2
+import csv
 import numpy as np
 import random
 from collections import deque
 import gym
 import universe
 import tensorflow as tf
+from tensorflow.contrib.layers import flatten
+
+
+ACTIONS = ['LeftTurnAccel', 'ForwardAccel', 'RightTurnAccel']
+KEYS = [[('KeyEvent', 'ArrowUp', True), ('KeyEvent', 'ArrowDown', False), ('KeyEvent', 'ArrowLeft', True), ('KeyEvent', 'ArrowRight', False)],
+        [('KeyEvent', 'ArrowUp', True), ('KeyEvent', 'ArrowDown', False), ('KeyEvent', 'ArrowLeft', False), ('KeyEvent', 'ArrowRight', False)],   
+        [('KeyEvent', 'ArrowUp', True), ('KeyEvent', 'ArrowDown', False), ('KeyEvent', 'ArrowLeft', False), ('KeyEvent', 'ArrowRight', True)]]
+
 
 # hyper params:
-ACTIONS = 3  # left, right, stay
-KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp']
+NUM_ACTIONS = 3
 GAMMA = 0.995
 INITIAL_EPSILON = 1.0
 FINAL_EPSILON = 0.005
@@ -28,7 +36,7 @@ def processFrame(observation_n):
         # crop
         obs = cropFrame(obs)
         # downscale resolution
-        obs = cv2.resize(obs, (80, 80))
+        obs = cv2.resize(obs, (32, 32))
         # greyscale
         obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
         # Convert to float
@@ -36,7 +44,7 @@ def processFrame(observation_n):
         # scale from 1 to 255
         obs *= (1.0 / 255.0)
         # re-shape a bitch
-        obs = np.reshape(obs, [80, 80])
+        obs = np.reshape(obs, [32, 32])
     return obs
 
 # crop frame to only flash portion:
@@ -49,11 +57,8 @@ def cropFrame(obs):
 
 # Add appropiate actions to system
 def appendActions(observation_n, argmax_t, previous_argmax):
-    actions_n = ([[('KeyEvent', KEYS[np.argmax(previous_argmax)], False),
-                   ('KeyEvent', 'ArrowUp', True),
-                   ('KeyEvent', 'n', True),
-                   ('KeyEvent', KEYS[np.argmax(argmax_t)], True)]
-                  for obs in observation_n])
+    action = KEYS[np.argmax(argmax_t)]
+    actions_n = ([action for obs in observation_n])
     return actions_n, argmax_t
 
 
@@ -71,8 +76,8 @@ def createGraph():
     W_fc4 = tf.Variable(tf.zeros([2304, 512]), name='W_fc4')
     b_fc4 = tf.Variable(tf.zeros([512]), name='b_fc4')
 
-    W_fc5 = tf.Variable(tf.zeros([512, ACTIONS]), name='W_fc5')
-    b_fc5 = tf.Variable(tf.zeros([ACTIONS]), name='b_fc5')
+    W_fc5 = tf.Variable(tf.zeros([512, NUM_ACTIONS]), name='W_fc5')
+    b_fc5 = tf.Variable(tf.zeros([NUM_ACTIONS]), name='b_fc5')
 
     # input for pixel data
     inp = tf.placeholder("float", [None, 80, 80, 4], name='input')
@@ -80,9 +85,7 @@ def createGraph():
     # Computes rectified linear unit activation fucntion on  a 2-D convolution
     # given 4-D input and filter tensors. and
     conv1 = tf.nn.relu(tf.nn.conv2d(inp, W_conv1, strides=[1, 4, 4, 1], padding="VALID") + b_conv1)
-
     conv2 = tf.nn.relu(tf.nn.conv2d(conv1, W_conv2, strides=[1, 2, 2, 1], padding="VALID") + b_conv2)
-
     conv3 = tf.nn.relu(tf.nn.conv2d(conv2, W_conv3, strides=[1, 1, 1, 1], padding="VALID") + b_conv3)
 
     # flatten conv3:
@@ -91,6 +94,57 @@ def createGraph():
     fc4 = tf.nn.relu(tf.matmul(conv3_flat, W_fc4) + b_fc4)
 
     out = tf.matmul(fc4, W_fc5) + b_fc5
+
+    return inp, out
+
+
+def createLeNet():    
+    # Hyperparameters
+    mu = 0
+    sigma = 0.1
+    layer_depth = {
+        'layer_1' : 6,
+        'layer_2' : 16,
+        'layer_3' : 120,
+        'layer_f1' : 84
+    }
+
+    # input for pixel data
+    inp = tf.placeholder("float", [None, 32, 32, 4], name='input')
+    
+    # Layer 1: Convolutional. Input = 80x80x4. Output = 28x28x6.
+    W_conv1 = tf.Variable(tf.truncated_normal(shape=[5,5,4,6], mean=mu, stddev=sigma), name='W_conv1')
+    b_conv1 = tf.Variable(tf.zeros(6), name='b_conv1')
+    conv1 = tf.nn.relu(tf.nn.conv2d(inp, W_conv1, strides=[1,1,1,1], padding='VALID') + b_conv1)
+
+    # Pooling. Input = 28x28x6. Output = 14x14x6.
+    pool_1 = tf.nn.max_pool(conv1,ksize=[1,2,2,1], strides=[1,2,2,1], padding='VALID')
+    
+    # Layer 2: Convolutional. Output = 10x10x16.
+    W_conv2 = tf.Variable(tf.truncated_normal(shape=[5,5,6,16], mean=mu, stddev=sigma), name='W_conv2')
+    b_conv2 = tf.Variable(tf.zeros(16),  name='b_conv2')
+    conv2 = tf.nn.relu(tf.nn.conv2d(pool_1, W_conv2, strides=[1,1,1,1], padding='VALID') + b_conv2)
+
+    # Pooling. Input = 10x10x16. Output = 5x5x16.
+    pool_2 = tf.nn.max_pool(conv2, ksize=[1,2,2,1], strides=[1,2,2,1], padding='VALID') 
+    
+    # Flatten. Input = 5x5x16. Output = 400.
+    fc1 = flatten(pool_2)
+    
+    # Layer 3: Fully Connected. Input = 400. Output = 120.
+    W_fc1 = tf.Variable(tf.truncated_normal(shape=(400,120), mean=mu, stddev=sigma), name='W_fc1')
+    b_fc1 = tf.Variable(tf.zeros(120), name='W_fc1')
+    fc1 = tf.nn.relu(tf.matmul(fc1, W_fc1) + b_fc1)
+
+    # Layer 4: Fully Connected. Input = 120. Output = 84.
+    W_fc2 = tf.Variable(tf.truncated_normal(shape = (120,84), mean = mu, stddev = sigma), name='W_fc2')
+    b_fc2 = tf.Variable(tf.zeros(84), name='b_fc2')
+    fc2 = tf.nn.relu(tf.matmul(fc1, W_fc2) + b_fc2)
+    
+    # Layer 5: Fully Connected. Input = 84. Output = 10.
+    W_fc3 = tf.Variable(tf.truncated_normal(shape = (84,NUM_ACTIONS), mean = mu , stddev = sigma), name='W_fc3')
+    b_fc3 = tf.Variable(tf.zeros(NUM_ACTIONS), name='b_fc3')
+    out = tf.matmul(fc2, W_fc3) + b_fc3
 
     return inp, out
 
@@ -112,7 +166,7 @@ def trainGraph(inp, out, sess):
 
     # to calculate the argmax, we multiply the predicted output with a vector
     # with one value 1 and rest as 0
-    argmax = tf.placeholder("float", [None, ACTIONS])
+    argmax = tf.placeholder("float", [None, NUM_ACTIONS])
     gt = tf.placeholder("float", [None])  # ground truth
 
     # action
@@ -155,17 +209,21 @@ def trainGraph(inp, out, sess):
     print(done_t)
     print(info)
 
+    fname = '../result/dqn_reward_history.csv'
+    wfile = open(fname, 'w')
+    writer = csv.writer(wfile, delimiter=' ')
+
     # training time
-    while True:
+    while t <= 100000:
 
         # output tensor
         out_t = out.eval(feed_dict={inp: [inp_t]})
         # argmax function
-        argmax_t = np.zeros([ACTIONS])
+        argmax_t = np.zeros([NUM_ACTIONS])
 
         #
         if random.random() <= epsilon:
-            maxIndex = random.randrange(ACTIONS)
+            maxIndex = random.randrange(NUM_ACTIONS)
         else:
             maxIndex = np.argmax(out_t)
         argmax_t[maxIndex] = 1
@@ -177,15 +235,16 @@ def trainGraph(inp, out, sess):
         observation_n, reward_t, done_t, info = env.step(action_t)
         env.render()
 
-        if observation_n[0] is None:
-            continue
+        while observation_n[0] is None:
+            observation_n, reward_t, done_t, info = env.step([[('KeyValue', 'ArrowUp', True)]])
 
-        # while observation_n[0] is None:
-        #     observation_n, reward_t, done_t, info = env.step([[('KeyValue', 'ArrowUp', True)]])
+        # print('reward: ', type(reward_t[0]))
+        if reward_t[0] >= 1000:
+            reward_t[0] -= 1000
 
         observation_t = processFrame(observation_n)
 
-        inp_t1 = np.append(np.reshape(observation_t, [80, 80, 1]), inp_t[:, :, 0:3], axis=2)
+        inp_t1 = np.append(np.reshape(observation_t, [32, 32, 1]), inp_t[:, :, 0:3], axis=2)
 
         # add our input tensor, argmax tensor, reward and updated input tensor
         # to stack of experiences
@@ -225,15 +284,16 @@ def trainGraph(inp, out, sess):
         if t % 1000 == 0:
             saver.save(sess, '../saved_models/' + 'CoasterRacer-dqn', global_step=t)
 
-        print("TIMESTEP", t,  "/ EPSILON", epsilon, "/ ACTION", KEYS[maxIndex], "/ REWARD", reward_t, "/ Q_MAX %e" % np.max(out_t))
-
+        print("TIMESTEP: ", t,  "\tEPSILON: ", epsilon, "\tACTION: ", ACTIONS[maxIndex], "   \tREWARD: ", reward_t[0], "  \tQ_MAX: %e" % np.max(out_t))
+        writer.writerow([t, reward_t[0]])
 
 def main():
     # create session
     sess = tf.InteractiveSession()
 
     # input layer and output layer by creating graph
-    inp, out = createGraph()
+    # inp, out = createGraph()
+    inp, out = createLeNet()
 
     # restore sess
     sess = restoreSession(sess)

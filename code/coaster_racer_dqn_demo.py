@@ -5,10 +5,17 @@ from collections import deque
 import gym
 import universe
 import tensorflow as tf
+from tensorflow.contrib.layers import flatten
+
+
+ACTIONS = ['LeftTurnAccel', 'ForwardAccel', 'RightTurnAccel']
+KEYS = [[('KeyEvent', 'ArrowUp', True), ('KeyEvent', 'ArrowDown', False), ('KeyEvent', 'ArrowLeft', True), ('KeyEvent', 'ArrowRight', False)],
+        [('KeyEvent', 'ArrowUp', True), ('KeyEvent', 'ArrowDown', False), ('KeyEvent', 'ArrowLeft', False), ('KeyEvent', 'ArrowRight', False)],   
+        [('KeyEvent', 'ArrowUp', True), ('KeyEvent', 'ArrowDown', False), ('KeyEvent', 'ArrowLeft', False), ('KeyEvent', 'ArrowRight', True)]]
+
 
 # hyper params:
-ACTIONS = 3  # left, right, stay
-KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp']
+NUM_ACTIONS = 3
 ENV_ID = 'flashgames.CoasterRacer-v0'
 # ['flashgames.DuskDrive-v0', 'flashgames.CoasterRacer-v0', 'flashgames.CoasterRacer3-v0', 'flashgames.NeonRace-v0']
 
@@ -22,7 +29,7 @@ def processFrame(observation_n):
         obs = cropFrame(obs)
         # downscale resolution (not sure about sizing here, was (120,160) when
         # I started but it felt like that was just truncating the colourspace)
-        obs = cv2.resize(obs, (80, 80))
+        obs = cv2.resize(obs, (32, 32))
         # greyscale
         obs = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
         # Convert to float
@@ -30,7 +37,7 @@ def processFrame(observation_n):
         # scale from 1 to 255
         obs *= (1.0 / 255.0)
         # re-shape a bitch
-        obs = np.reshape(obs, [80, 80])
+        obs = np.reshape(obs, [32, 32])
     return obs
 
 
@@ -42,14 +49,12 @@ def cropFrame(obs):
 
 # Add appropiate actions to system
 def appendActions(observation_n, argmax_t, previous_argmax):
-    actions_n = ([[('KeyEvent', KEYS[np.argmax(previous_argmax)], False),
-                   ('KeyEvent', 'ArrowUp', True),
-                   ('KeyEvent', 'n', True),
-                   ('KeyEvent', KEYS[np.argmax(argmax_t)], True)] for obs in observation_n])
+    action = KEYS[np.argmax(argmax_t)]
+    actions_n = ([action for obs in observation_n])
     return actions_n, argmax_t
 
 
-def restoreGraph():
+def createGraph():
 
     # Variables to be restored to
     W_conv1 = tf.Variable(tf.zeros([8, 8, 4, 32]), name='W_conv1')
@@ -64,8 +69,8 @@ def restoreGraph():
     W_fc4 = tf.Variable(tf.zeros([2304, 512]), name='W_fc4')
     b_fc4 = tf.Variable(tf.zeros([512]), name='b_fc4')
 
-    W_fc5 = tf.Variable(tf.zeros([512, ACTIONS]), name='W_fc5')
-    b_fc5 = tf.Variable(tf.zeros([ACTIONS]), name='b_fc5')
+    W_fc5 = tf.Variable(tf.zeros([512, NUM_ACTIONS]), name='W_fc5')
+    b_fc5 = tf.Variable(tf.zeros([NUM_ACTIONS]), name='b_fc5')
 
     # Restore NN structure and input and output place holders:
     inp = tf.placeholder("float", [None, 80, 80, 4])
@@ -81,6 +86,57 @@ def restoreGraph():
     fc4 = tf.nn.relu(tf.matmul(conv3_flat, W_fc4) + b_fc4)
 
     out = tf.matmul(fc4, W_fc5) + b_fc5
+
+    return inp, out
+
+
+def createLeNet():    
+    # Hyperparameters
+    mu = 0
+    sigma = 0.1
+    layer_depth = {
+        'layer_1' : 6,
+        'layer_2' : 16,
+        'layer_3' : 120,
+        'layer_f1' : 84
+    }
+
+    # input for pixel data
+    inp = tf.placeholder("float", [None, 32, 32, 4], name='input')
+    
+    # Layer 1: Convolutional. Input = 80x80x4. Output = 28x28x6.
+    W_conv1 = tf.Variable(tf.truncated_normal(shape=[5,5,4,6], mean=mu, stddev=sigma), name='W_conv1')
+    b_conv1 = tf.Variable(tf.zeros(6), name='b_conv1')
+    conv1 = tf.nn.relu(tf.nn.conv2d(inp, W_conv1, strides=[1,1,1,1], padding='VALID') + b_conv1)
+
+    # Pooling. Input = 28x28x6. Output = 14x14x6.
+    pool_1 = tf.nn.max_pool(conv1,ksize=[1,2,2,1], strides=[1,2,2,1], padding='VALID')
+    
+    # Layer 2: Convolutional. Output = 10x10x16.
+    W_conv2 = tf.Variable(tf.truncated_normal(shape=[5,5,6,16], mean=mu, stddev=sigma), name='W_conv2')
+    b_conv2 = tf.Variable(tf.zeros(16),  name='b_conv2')
+    conv2 = tf.nn.relu(tf.nn.conv2d(pool_1, W_conv2, strides=[1,1,1,1], padding='VALID') + b_conv2)
+
+    # Pooling. Input = 10x10x16. Output = 5x5x16.
+    pool_2 = tf.nn.max_pool(conv2, ksize=[1,2,2,1], strides=[1,2,2,1], padding='VALID') 
+    
+    # Flatten. Input = 5x5x16. Output = 400.
+    fc1 = flatten(pool_2)
+    
+    # Layer 3: Fully Connected. Input = 400. Output = 120.
+    W_fc1 = tf.Variable(tf.truncated_normal(shape=(400,120), mean=mu, stddev=sigma), name='W_fc1')
+    b_fc1 = tf.Variable(tf.zeros(120), name='W_fc1')
+    fc1 = tf.nn.relu(tf.matmul(fc1, W_fc1) + b_fc1)
+
+    # Layer 4: Fully Connected. Input = 120. Output = 84.
+    W_fc2 = tf.Variable(tf.truncated_normal(shape = (120,84), mean = mu, stddev = sigma), name='W_fc2')
+    b_fc2 = tf.Variable(tf.zeros(84), name='b_fc2')
+    fc2 = tf.nn.relu(tf.matmul(fc1, W_fc2) + b_fc2)
+    
+    # Layer 5: Fully Connected. Input = 84. Output = 10.
+    W_fc3 = tf.Variable(tf.truncated_normal(shape = (84,NUM_ACTIONS), mean = mu , stddev = sigma), name='W_fc3')
+    b_fc3 = tf.Variable(tf.zeros(NUM_ACTIONS), name='b_fc3')
+    out = tf.matmul(fc2, W_fc3) + b_fc3
 
     return inp, out
 
@@ -130,7 +186,7 @@ def testGraph(inp, out, sess):
         # output tensor
         out_t = out.eval(session=sess, feed_dict={inp: [inp_t]})
         # argmax function
-        argmax_t = np.zeros([ACTIONS])
+        argmax_t = np.zeros([NUM_ACTIONS])
 
         argmax_t[np.argmax(out_t)] = 1
 
@@ -143,10 +199,11 @@ def testGraph(inp, out, sess):
 
         observation_t = processFrame(observation_n)
 
-        inp_t1 = np.append(np.reshape(observation_t, [80, 80, 1]), inp_t[:, :, 0:3], axis=2)
+        inp_t1 = np.append(np.reshape(observation_t, [32, 32, 1]), inp_t[:, :, 0:3], axis=2)
 
         # update our input tensor the the next frame
         inp_t = inp_t1
+        print("ACTION: ", ACTIONS[np.argmax(out_t)], "   \tREWARD: ", reward_t[0], "     \tQ_MAX: %e" % np.max(out_t))
 
 
 def main():
@@ -154,7 +211,8 @@ def main():
     sess = tf.Session()
 
     # restore the weights, baises and structure to the graph:
-    inp, out = restoreGraph()
+    # inp, out = createGraph()
+    inp, out = createLeNet()
 
     # restore sess
     sess = restoreSession(sess)
