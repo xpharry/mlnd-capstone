@@ -113,7 +113,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Tile Block
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\title{Machine Learning Nanodegree \\ Capstone Project \\ A Game Bot trained with Deep Q-Learning }
+\title{Machine Learning Nanodegree \\ Capstone Project \\ A Game Bot trained by Deep Q-Learning }
 \author{Peng Xu}
 \date{March 6, 2018}
 \maketitle
@@ -206,7 +206,7 @@ To tackle the problem described in \hyperref[subsec:problem-statement]{Section \
 
 \subsubsection{Coaster Racer Game environment}
 
-The browser screenshot as shown in Figure 2 is both for the user and the AI Gamebot. Namely, that is the raw vision of the Gamebot which apparently contains lots of pixels useless for deciding the steering. For more efficient and faster computing, some preprocessing procedures would be done before we throw the image data into a deep learning model, which will be described in later paragraph.
+The browser screenshot as shown in Figure 2 is both for the user and the AI Game Bot. Namely, that is the raw vision of the Game Bot which apparently contains lots of pixels useless for deciding the steering. For more efficient and faster computing, some preprocessing procedures would be done before we throw the image data into a deep learning model, which will be described in later paragraph.
 
 \begin{figure}[h]
 \centering
@@ -236,7 +236,9 @@ Coaster Racer Flash Game is a typical car racing game which is simply controlled
 
 \subsubsection{Rewards}
 
-Rewards are primarily based off of the game score.
+Rewards are primarily based off of the game score. From the perspective of human player, we judge a good player or not by how the driving behavior is close to real and safe case. While for a Game Bot, it only cares about the score. For this specific game, Coaster Racer Game, it unreasonably encourages a dangerous driving behavior. For example, when the car hits a traffic cone it gets 1000 reward, even if the price of hitting a cone is falling down the road. There is no punishment for falling down the road.
+
+An ideal reward function would encourage the car to stay in the middle of the road and to try not to hitting other cars and guard bars. Here I simply cancel the one time 1000 score reward. But there is still room to fine tune the function in the future.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Algorithms and Techniques}
@@ -246,10 +248,10 @@ Rewards are primarily based off of the game score.
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.5\textwidth]{implementation}
-\caption{A flowchart of training the Coaster Racer Gamebot.}
+\caption{A flowchart of training the Coaster Racer Game Bot.}
 \end{figure}
 
-An overall representation of how the different components relate during a play evaluation, centered around the deep Q-network for playing, the main decision component is shown in Fig 3. Each game screen is resized to a desaturated 80x80 pixels image (opposed to 84x84 on DeepMind's papers), and if you might be wondering why each state is a sequence of four game screens instead of one, that is because the agent's history is used for better motion perception. Achieving this requires a sequence of preprocessed images to be stacked in channels (like you would stack RGB channels on a colored image) and fed to the network.
+An overall representation of how the different components relate during a play evaluation, centered around the deep Q-network for playing, the main decision component is shown in Figure 3. Each game screen is resized to a desaturated pixels image, and if you might be wondering why each state is a sequence of four game screens instead of one, that is because the agent's history is used for better motion perception. Achieving this requires a sequence of preprocessed images to be stacked in channels (like you would stack RGB channels on a colored image) and fed to the network.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Deep Neural Network}
@@ -257,7 +259,29 @@ An overall representation of how the different components relate during a play e
 
 Convolutional Neural Networks, or CNNs, are a special type of neural network that has a known grid-like topology. Like most other neural networks they are trained with a variant of the back-propagation algorithm. CNN's strength is pattern recognition directly from pixels of images with minimal processing. We use a convolutional network as a function mapping the preprocessed images to Q values, since the actions are highly based on what would be seen as pixel matrix.
 
-The network's architecture is essentially the same used by DeepMind, except for the first convolutional neural network's input (80x80x4 instead of 84x84x4, to account for the different input sizes) and the linear layer's output (3 instead of 18, to account for the different number of actions available).
+\begin{itemize}
+
+	\item \textbf{DeepMind's Deep Q Network}
+	
+	\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.5\textwidth]{deepmind-atari-network}
+	\caption{Deep Neural Network model from DeepMind paper.}
+	\end{figure}
+	
+	The network's architecture that I firstly used is essentially the same used by DeepMind, except for the first convolutional neural network's input (80x80x4 instead of 84x84x4, to account for the different input sizes) and the linear layer's output (3 instead of 18, to account for the different number of actions available).
+	
+	\item \textbf{LeNet-5.}
+	
+	\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.5\textwidth]{lenet-5-825x285}
+	\caption{LeNet-5.}
+	\end{figure}
+	
+	For an image classification problem, there are several mature models other than the one above such as LeNet, VGG, Inception and Xception. I then tried a LeNet-5 model here and expected it to perform better than the DeepMind one for predicting actions. LeNet is deeper than the DeepMind one to grasp more features and has some dropout layers to avoid overfitting. In practice, it shows an advantage especially on predicting turning actions.
+	
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Q-learning}
@@ -351,7 +375,7 @@ Q-learning, a model-free online off-policy algorithm, whose main strength is tha
     	\caption{Cropped input image.}
     	\end{figure}
     
-    The raw input image is captured by Universe in the function "step()" which is simply a screenshot of the browser as shown in Figure 2. Obviously the useful vision information are only from the game screen. If we go further, the top half of the game screen displaying the sky does not change very much and the bottom half of the is heavily effected by the turning actions. Thus a region of interest is carefully chosen by whether considering whether it relates to decide an expected steering behavior.  Then the image is simply cropped by a new window with the "cropFrame()" function. An example cropped image is as shown in Fig 4.   
+    The raw input image is captured by Universe in the function "step()" which is simply a screenshot of the browser as shown in Figure 2. Obviously the useful vision information are only from the game screen. If we go further, the top half of the game screen displaying the sky does not change very much and the bottom half of the is heavily effected by the turning actions. Thus a region of interest is carefully chosen by whether considering whether it relates to decide an expected steering behavior.  Then the image is simply cropped by a new window with the "cropFrame()" function. An example cropped image is as shown in Figure 6.   
     
     \item Downscale the resolution.
 
@@ -361,7 +385,7 @@ Q-learning, a model-free online off-policy algorithm, whose main strength is tha
    	 \caption{Downsized input image.}
     	\end{figure}
     
-    A high resolution is usually redundant for a computer vision task. By resizing with a smaller size, the space information are almost remained and the computing time are greatly saved. The cropped image is then downsized to as smaller size, [80, 80] as in Fig 5. Downscaling the resolution doesn't hurt the information for turning left or right but highly accelerating the computing since much smaller data are being processed.
+    A high resolution is usually redundant for a computer vision task. By resizing with a smaller size, the space information are almost remained and the computing time are greatly saved. The cropped image is then downsized to a smaller size, [80, 80] as in Figure 7. Downscaling the resolution doesn't hurt the information for turning left or right but highly accelerating the computing since much smaller data are being processed.
     
     \item Grayscale.
 
@@ -371,7 +395,7 @@ Q-learning, a model-free online off-policy algorithm, whose main strength is tha
 	\caption{Grayscaled input image.}
 	\end{figure}
     
-   Grayscale processing is another useful technique in computer vision tasks since it is a great help for accelerating the computing and is at least three times faster than that of color image processing. This is because grayscale image has only one color channel as opposed to three in a color image.  The color information are usually dumped when unnecessary for the computer vision tasks. As here, the downsized image is gray scaled as in Fig 6, because the color information does not help much for the steering control. 
+   Grayscale processing is another useful technique in computer vision tasks since it is a great help for accelerating the computing and is at least three times faster than that of color image processing. This is because grayscale image has only one color channel as opposed to three in a color image.  The color information are usually dumped when unnecessary for the computer vision tasks. As here, the downsized image is gray scaled as in Figure 8, because the color information does not help much for the steering control. 
 
 \end{itemize}
 
@@ -489,35 +513,89 @@ def cropFrame(obs):
     return obs[284:564, 18:658, :]
 \end{python}
 
+\subsubsection{Finetuning Hyperparameters}
+
+I played with some hyperparameters:
+
+\begin{itemize}
+\item The number of time steps
+\item The capacity of the replay memory,
+\item The layers of the network and the region of interest.
+\end{itemize}
+Currently this process is nothing more than trial and error. I could be better designed by grid search or random search. Well, it could be even easier to design the pipeline of implement a Deep Reinforcement Learning problem but tougher in hyperparameter tuning. Without a deeper understanding of the features of model, it has a high probability to fall into a less efficient experiment process. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Refinement}
+
+\subsubsection{Relay Memory}
+Along the first several trials, I experimented with different memory capacities. The memory is a pool where the Game Bot would pick actions by Q values from. A small pool means it would be quick to converge during the training stage while it also limits the capacity it can learn. So there is a tradeoff here.
+
+\subsubsection{The Complexity of the Nerwork}
+The original works well for some simple game such as Atari and CartPole. The Coster Racer Game here is more complex to play because it scores by driving along the way with a high speed. The delay between an action and a reward is bigger. Through a long time training, it has a bad classification on Left Turn and Right Turn cases.
+
+I replace the DeepMind model with LeNet-5 which then shows a better ability in classifying and quicker convergence.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % IV. Results (approx. 2-3 pages)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
 
-The network was trained over 10,000 time steps and the behavior has been learned gradually. Compared to random bot, it has shown obvious better performance. For better or human level behavior, more training time steps are needed. Currently, I would show a video of Gamebot playing Coaster Racing by itself. The following Figure is a screenshot when the car reach the finishing line and it got a score of 10269. You can also check the whole video in this Youtube link: https://youtu.be/VdVA3od4tVs.
+\subsection{Model Evaluation and Validation}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.5\textwidth]{high-score-by-gamebot}
-\caption{High score by Gamebot.}
+\caption{High score by the Game Bot.}
 \end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Figure 9 is a screenshot when the car reach the finishing line and it got a score of 10269. The network was trained over 10,000 time steps and the behavior has been learned gradually. Compared to random bot, it has shown obvious better performance. For better or human level behavior, more training time steps are needed.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Justification}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{reward_history_cmp}
+\caption{A comparison between DQN trained Game Bot and a random Game Bot.}
+\end{figure}
+
+The reward histories shown in Figure 10 indicates how it performs better than a random Game Bot when the DQN one is trained 100000 time steps. It proves a much better ability to earn scores or rewards though there is still a big room to improve. The Game Bot can earn as high as 10269 scores though it still usually ranks the last.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % V. Conclusion (approx. 1-2 pages)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
 
+\subsection{Free-Form Visualization}
+
+A Youtube video has also been uploaded with the link https://youtu.be/VdVA3od4tVs here and it shows how it performs after 17000 time steps' training. It shows a capacity to stay in the road though it has some difficulty choosing right actions when blocked by the guard bars. The guard covered part of its view and the always acceleration actions made it even hard to get out of the stuck.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Reflection}
 
-The most difficult aspect of this project was that is extremely hard to stabilize reinforcement learning with non-linear function approximators. There are plenty of tricks that can be used and hyper-parameters that need to be tuned to get it to work, such as exploration policy, discount factor, learning rate, number of episodes, batch size, experience pool size  and initial value for ?.
+\subsubsection{Diffculties}
+
+The most difficult aspect of this project was that is extremely hard to stabilize reinforcement learning with non-linear function approximators. There are plenty of tricks that can be used and hyper-parameters that need to be tuned to get it to work, such as exploration policy, discount factor, learning rate, number of episodes, batch size, experience pool size and initial value.
 
 All these techniques and parameters were selected by trial and error, and no systematic grid search was done due to the high computational cost. More than once it seemed that the implementation of the algorithms and techniques was incorrect, and it turned out that the wrong parameters were being used. A ``simple'' change such as decreasing $\epsilon$, or changing the neural network optimizer made big changes in the performance of the value function.
 
 Also a huge difficulty of a reinforcement learning problem could be the time lag between the action and the reward. When training with grouped actions off of the heuristic reward function, the reward for a given action was immediate, and this network showed the best performance. The next best performance came from a network based off of grouped actions, where actions were only a few steps removed from the next reward. Our worst performance came from the networks trained to estimate actions, where actions were several dozen steps removed from the next rewards.
+
+\subsubsection{General Pipeline}
+
+In a Deep Q Network setting, there are several elements which we have to be careful to define.
+
+\begin{itemize}
+	
+    \item \textbf{Environment:} An environment defines what the agent interacts with. It receives states and actions and generate new states and plays a role as an online data generator. 
+    \item \textbf{State Space:} A state is the input of the Deep Q Network. In this project, the stats is an image or a pixel array. It will be trained by a Deep Neural Network and predict the next actions.
+    \item \textbf{Action Space:} An action space could be discrete and continuous. It defines the all classes that would be generated from the Deep Q Network. A bigger action space indicates a bigger room for an agent to learn and improve but also means a much complexity to train.
+    \item \textbf{Reward Functions:} The reward function determines in which way we would like the agent to grow. For example, we would define a bigger reward for the car to stay in the middle of the road than in the side of the road. It can be a discrete or a continuous function.
+    \item \textbf{Deep Neural Network:} The Deep Neural Network is responsible to map the states to the Q values, which are corresponding to different actions by Q functions. 
+    \item \textbf{Fine tune the Hyperparameters:} By fine tuning the hyperparameters, we try to maximize the ability of the defined Deep Q Network. It can be subtle to modify the hyperparameter values which might change the output in different ways, like effecting the time of the convergence, the prediction accuracy, overfitting or underfitting and robustness.
+    
+\end{itemize}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Improvement}
@@ -525,9 +603,17 @@ There are at least two aspects we can improve in the next stage,
 
 \begin{enumerate}
 
+    \item \textbf{More Detailed Action Space}: Here only three actions are defined and the car is always in acceleration mode which is not the best choice in some cases. When the car is got stuck, acceleration wastes the effort of getting out. And it is easier to pass the sharp turn if it slows down the speed a little bit. Thus we can define more actions as follows.
+	\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.5\textwidth]{full-action-space}
+	\caption{A bigger action space.}
+	\end{figure}    
+    
+    \item \textbf{Tuned Reward Functions:} In this project, I almost relied on the game score as the reward resource. In fact, there are some rules to get maximal rewards which I don't think help learning a reasonable driving behavior. For example, there is no punishment on being blocked and falling into the sky. The Game Bot may think it is no big deal to fall into the sky and sometimes it can be rewarded 1000 score if it happen to hit a traffic cone before it falls down. I put my focus on building a working Deep Q Learning structure and had a hard time hacking into the scoring system, so I have to put this task next time.
     \item \textbf{Better benchmarks:} In most of this project we used simple benchmarks, such as playing against random players. While testing against random is probably the first thing to test against (if you can't beat a random player your learning algorithm is not working), it would be better to find a few heuristics and better players that can be used for testing.
 
-    \item \textbf{Incorporate other RL techniques:} The field of RL has been advancing fast in recent years. There are a few new and old techniques that I would like to try, such as asynchronous RL, double Q-learning, prioritized experience replay.
+    \item \textbf{Incorporate other RL techniques:} The field of RL has been advancing fast in recent years. There are a few new and old techniques that I would like to try, such as asynchronous RL, double Q-learning, prioritized experience replay and Asynchronous Actor-Critic Agents (A3C).
 
 \end{enumerate}
 
